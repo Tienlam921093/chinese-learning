@@ -1,0 +1,1850 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>漢語學習 HánYǔ — Học Tiếng Trung Thông Minh</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN"
+      crossorigin="anonymous"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700;900&family=Outfit:wght@300;400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="css/style.css" />
+    <style>
+      :root {
+        --red: #dc2626;
+        --red2: #ef4444;
+        --gold: #f59e0b;
+        --ink: #0f172a;
+        --ink2: #1e293b;
+        --muted: #64748b;
+        --border: #e2e8f0;
+        --bg: #f8fafc;
+        --font-d: "Noto Serif SC", serif;
+        --font-b: "Outfit", sans-serif;
+        --sh: 0 4px 24px rgba(0, 0, 0, 0.08);
+        --sh-lg: 0 8px 48px rgba(0, 0, 0, 0.14);
+        --r: 14px;
+      }
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+      }
+      html {
+        scroll-behavior: smooth;
+      }
+      body {
+        font-family: var(--font-b);
+        color: var(--ink);
+        background: #fff;
+        margin: 0;
+        overflow-x: hidden;
+        line-height: 1.65;
+      }
+
+      /* NAV */
+      #nav {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 1000;
+        padding: 1.1rem 0;
+        transition: all 0.35s ease;
+      }
+      #nav.solid {
+        background: rgba(15, 23, 42, 0.97);
+        backdrop-filter: blur(16px);
+        padding: 0.6rem 0;
+        box-shadow: 0 2px 24px rgba(0, 0, 0, 0.3);
+      }
+      .nav-logo-char {
+        font-family: var(--font-d);
+        font-size: 1.8rem;
+        font-weight: 900;
+        color: var(--red);
+        line-height: 1;
+      }
+      .nav-logo-text {
+        font-family: var(--font-d);
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: #fff;
+        letter-spacing: 0.04em;
+      }
+      .nav-link-c {
+        color: rgba(255, 255, 255, 0.8) !important;
+        font-weight: 500;
+        font-size: 0.9rem;
+        padding: 0.4rem 0.75rem;
+        border-radius: 8px;
+        transition: all 0.2s;
+        text-decoration: none;
+      }
+      .nav-link-c:hover {
+        color: #fff !important;
+        background: rgba(255, 255, 255, 0.1);
+      }
+      .btn-nl {
+        background: transparent;
+        border: 1.5px solid rgba(255, 255, 255, 0.35);
+        color: #fff;
+        border-radius: 8px;
+        padding: 0.38rem 1rem;
+        font-size: 0.85rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+        text-decoration: none;
+      }
+      .btn-nl:hover {
+        background: rgba(255, 255, 255, 0.1);
+        color: #fff;
+        border-color: rgba(255, 255, 255, 0.6);
+      }
+      .btn-nc {
+        background: var(--red);
+        border: none;
+        color: #fff;
+        border-radius: 8px;
+        padding: 0.4rem 1.1rem;
+        font-size: 0.85rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.2s;
+        text-decoration: none;
+      }
+      .btn-nc:hover {
+        background: #b91c1c;
+        color: #fff;
+        transform: translateY(-1px);
+      }
+      .hamburger {
+        display: none;
+        background: none;
+        border: none;
+        color: #fff;
+        font-size: 1.4rem;
+        cursor: pointer;
+        z-index: 1001;
+      }
+      @media (max-width: 767px) {
+        .hamburger {
+          display: flex !important;
+        }
+        #navMenu {
+          display: none;
+          position: fixed;
+          inset: 0;
+          background: rgba(15, 23, 42, 0.99);
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          gap: 1.5rem;
+          z-index: 999;
+        }
+        #navMenu.open {
+          display: flex;
+        }
+      }
+
+      /* HERO */
+      .hero {
+        min-height: 100vh;
+        background: linear-gradient(
+          160deg,
+          #0f172a 0%,
+          #1e1b4b 40%,
+          #0f172a 100%
+        );
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        overflow: hidden;
+        padding: 120px 1.5rem 80px;
+      }
+      .hero-grid {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        background-image:
+          linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+        background-size: 60px 60px;
+      }
+      .hero-glow {
+        position: absolute;
+        border-radius: 50%;
+        filter: blur(80px);
+        pointer-events: none;
+      }
+      .g1 {
+        width: 500px;
+        height: 500px;
+        background: rgba(220, 38, 38, 0.15);
+        top: -100px;
+        right: -100px;
+      }
+      .g2 {
+        width: 400px;
+        height: 400px;
+        background: rgba(99, 102, 241, 0.12);
+        bottom: -80px;
+        left: -80px;
+      }
+      .g3 {
+        width: 300px;
+        height: 300px;
+        background: rgba(245, 158, 11, 0.1);
+        top: 40%;
+        left: 40%;
+      }
+      .hero-chars {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-around;
+        padding: 2rem;
+        pointer-events: none;
+        overflow: hidden;
+      }
+      .hc {
+        font-family: var(--font-d);
+        font-weight: 900;
+        color: rgba(255, 255, 255, 0.04);
+        font-size: clamp(4rem, 8vw, 9rem);
+        animation: hcf 12s ease-in-out infinite;
+        user-select: none;
+      }
+      .hc:nth-child(2n) {
+        animation-duration: 15s;
+        animation-delay: -5s;
+      }
+      .hc:nth-child(3n) {
+        animation-duration: 10s;
+        animation-delay: -3s;
+        color: rgba(220, 38, 38, 0.05);
+      }
+      .hc:nth-child(4n) {
+        animation-duration: 18s;
+        animation-delay: -8s;
+      }
+      @keyframes hcf {
+        0%,
+        100% {
+          transform: translateY(0) rotate(-3deg) scale(1);
+        }
+        33% {
+          transform: translateY(-18px) rotate(2deg) scale(1.03);
+        }
+        66% {
+          transform: translateY(8px) rotate(-1deg) scale(0.97);
+        }
+      }
+      .hero-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: rgba(220, 38, 38, 0.15);
+        border: 1px solid rgba(220, 38, 38, 0.3);
+        color: #fca5a5;
+        border-radius: 999px;
+        padding: 0.35rem 1rem;
+        font-size: 0.8rem;
+        font-weight: 600;
+        letter-spacing: 0.05em;
+        margin-bottom: 1.5rem;
+      }
+      .hero-badge .dot {
+        width: 7px;
+        height: 7px;
+        background: #ef4444;
+        border-radius: 50%;
+        animation: blink 1.5s ease infinite;
+      }
+      @keyframes blink {
+        0%,
+        100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.3;
+        }
+      }
+      .hero-title {
+        font-family: var(--font-d);
+        font-size: clamp(2.2rem, 5.5vw, 4.8rem);
+        font-weight: 900;
+        color: #fff;
+        line-height: 1.15;
+        margin-bottom: 1.25rem;
+      }
+      .hero-title .accent {
+        background: linear-gradient(135deg, #f59e0b, #ef4444);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+      .hero-sub {
+        color: rgba(255, 255, 255, 0.6);
+        font-size: 1.05rem;
+        max-width: 540px;
+        margin: 0 auto 2.5rem;
+        line-height: 1.75;
+      }
+      .hero-btns {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        flex-wrap: wrap;
+        margin-bottom: 3rem;
+      }
+      .btn-hp {
+        background: var(--red);
+        color: #fff;
+        border: none;
+        padding: 0.85rem 2.2rem;
+        border-radius: 12px;
+        font-weight: 700;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: all 0.25s;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        box-shadow: 0 4px 20px rgba(220, 38, 38, 0.4);
+      }
+      .btn-hp:hover {
+        background: #b91c1c;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 30px rgba(220, 38, 38, 0.5);
+        color: #fff;
+      }
+      .btn-hs {
+        background: rgba(255, 255, 255, 0.08);
+        color: #fff;
+        border: 1.5px solid rgba(255, 255, 255, 0.2);
+        padding: 0.85rem 2.2rem;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: all 0.25s;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        backdrop-filter: blur(8px);
+      }
+      .btn-hs:hover {
+        background: rgba(255, 255, 255, 0.14);
+        border-color: rgba(255, 255, 255, 0.4);
+        color: #fff;
+        transform: translateY(-2px);
+      }
+      .stat-pills {
+        display: flex;
+        gap: 1.2rem;
+        justify-content: center;
+        flex-wrap: wrap;
+      }
+      .stat-pill {
+        background: rgba(255, 255, 255, 0.07);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-radius: 999px;
+        padding: 0.55rem 1.3rem;
+        display: flex;
+        align-items: center;
+        gap: 0.55rem;
+        backdrop-filter: blur(8px);
+      }
+      .stat-pill .n {
+        font-size: 1.05rem;
+        font-weight: 800;
+        color: var(--gold);
+      }
+      .stat-pill .l {
+        font-size: 0.78rem;
+        color: rgba(255, 255, 255, 0.55);
+      }
+
+      /* SECTION */
+      section {
+        padding: 5rem 0;
+      }
+      .sec-label {
+        display: inline-block;
+        background: rgba(220, 38, 38, 0.08);
+        color: var(--red);
+        border: 1px solid rgba(220, 38, 38, 0.2);
+        border-radius: 999px;
+        padding: 0.3rem 1rem;
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        margin-bottom: 0.85rem;
+      }
+      .sec-title {
+        font-family: var(--font-d);
+        font-size: clamp(1.8rem, 4vw, 2.6rem);
+        font-weight: 900;
+        color: var(--ink);
+        line-height: 1.2;
+        margin-bottom: 0.75rem;
+      }
+      .sec-title span {
+        color: var(--red);
+      }
+      .sec-sub {
+        color: var(--muted);
+        font-size: 1rem;
+        max-width: 500px;
+        margin: 0 auto;
+      }
+
+      /* FEATURE CARDS */
+      .feat-card {
+        background: #fff;
+        border: 1.5px solid var(--border);
+        border-radius: var(--r);
+        padding: 1.75rem;
+        height: 100%;
+        transition:
+          transform 0.25s,
+          box-shadow 0.25s,
+          border-color 0.25s;
+        position: relative;
+        overflow: hidden;
+      }
+      .feat-card::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        opacity: 0;
+        background: linear-gradient(
+          135deg,
+          rgba(220, 38, 38, 0.04),
+          transparent
+        );
+        transition: opacity 0.3s;
+      }
+      .feat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: var(--sh-lg);
+        border-color: rgba(220, 38, 38, 0.2);
+      }
+      .feat-card:hover::before {
+        opacity: 1;
+      }
+      .feat-icon {
+        width: 50px;
+        height: 50px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.25rem;
+        margin-bottom: 1rem;
+      }
+      .feat-card h5 {
+        font-family: var(--font-d);
+        font-size: 1.05rem;
+        font-weight: 700;
+        color: var(--ink);
+        margin-bottom: 0.45rem;
+      }
+      .feat-card p {
+        color: var(--muted);
+        font-size: 0.88rem;
+        margin: 0;
+        line-height: 1.65;
+      }
+
+      /* HSK */
+      .hsk-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1rem;
+      }
+      @media (max-width: 768px) {
+        .hsk-grid {
+          grid-template-columns: repeat(2, 1fr);
+        }
+      }
+      @media (max-width: 480px) {
+        .hsk-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+      .hsk-card {
+        border-radius: var(--r);
+        padding: 1.5rem 1.3rem;
+        color: #fff;
+        text-decoration: none;
+        display: block;
+        position: relative;
+        overflow: hidden;
+        transition:
+          transform 0.25s,
+          box-shadow 0.25s;
+      }
+      .hsk-card::after {
+        content: attr(data-hanzi);
+        font-family: var(--font-d);
+        font-weight: 900;
+        font-size: 6rem;
+        position: absolute;
+        right: -1rem;
+        bottom: -1.5rem;
+        opacity: 0.12;
+        line-height: 1;
+        pointer-events: none;
+      }
+      .hsk-card:hover {
+        transform: translateY(-5px) scale(1.02);
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25);
+        color: #fff;
+      }
+      .hsk-lv {
+        font-family: var(--font-d);
+        font-size: 1.5rem;
+        font-weight: 900;
+        margin-bottom: 0.3rem;
+      }
+      .hsk-inf {
+        font-size: 0.8rem;
+        opacity: 0.85;
+        margin-bottom: 0.7rem;
+      }
+      .hsk-bar {
+        height: 4px;
+        background: rgba(255, 255, 255, 0.25);
+        border-radius: 2px;
+        overflow: hidden;
+      }
+      .hsk-bar-f {
+        height: 100%;
+        border-radius: 2px;
+        background: rgba(255, 255, 255, 0.7);
+      }
+      .hsk-1 {
+        background: linear-gradient(135deg, #16a34a, #166534);
+      }
+      .hsk-2 {
+        background: linear-gradient(135deg, #2563eb, #1e40af);
+      }
+      .hsk-3 {
+        background: linear-gradient(135deg, #d97706, #b45309);
+      }
+      .hsk-4 {
+        background: linear-gradient(135deg, #7c3aed, #5b21b6);
+      }
+      .hsk-5 {
+        background: linear-gradient(135deg, #dc2626, #991b1b);
+      }
+      .hsk-6 {
+        background: linear-gradient(135deg, #0f172a, #1e293b);
+      }
+
+      /* CHATBOT PROMO */
+      .chat-promo {
+        background: var(--ink);
+        position: relative;
+        overflow: hidden;
+      }
+      .chat-promo::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background:
+          radial-gradient(
+            ellipse 70% 80% at 80% 50%,
+            rgba(220, 38, 38, 0.15),
+            transparent
+          ),
+          radial-gradient(
+            ellipse 50% 60% at 10% 60%,
+            rgba(99, 102, 241, 0.1),
+            transparent
+          );
+      }
+      .chat-mockup {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+      }
+      .chat-mh {
+        background: rgba(255, 255, 255, 0.07);
+        padding: 0.85rem 1.25rem;
+        display: flex;
+        align-items: center;
+        gap: 0.7rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      }
+      .cmd {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+      }
+      .bubble {
+        padding: 0.6rem 0.95rem;
+        border-radius: 14px;
+        max-width: 85%;
+        font-size: 0.83rem;
+        line-height: 1.55;
+      }
+      .b-bot {
+        background: rgba(255, 255, 255, 0.1);
+        color: rgba(255, 255, 255, 0.9);
+        border-bottom-left-radius: 4px;
+      }
+      .b-user {
+        background: var(--red);
+        color: #fff;
+        border-bottom-right-radius: 4px;
+        margin-left: auto;
+      }
+      .b-hanzi {
+        font-family: var(--font-d);
+        font-size: 1.2rem;
+        color: var(--gold);
+      }
+
+      /* PRICING */
+      .pc {
+        background: #fff;
+        border: 2px solid var(--border);
+        border-radius: 18px;
+        padding: 2rem;
+        height: 100%;
+        transition:
+          transform 0.25s,
+          box-shadow 0.25s;
+        position: relative;
+      }
+      .pc:hover {
+        transform: translateY(-6px);
+        box-shadow: var(--sh-lg);
+      }
+      .pc.pop {
+        border-color: var(--red);
+        box-shadow: 0 0 0 4px rgba(220, 38, 38, 0.08);
+      }
+      .pop-tag {
+        position: absolute;
+        top: -13px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: var(--red);
+        color: #fff;
+        font-size: 0.7rem;
+        font-weight: 800;
+        padding: 0.25rem 0.9rem;
+        border-radius: 999px;
+        white-space: nowrap;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+      }
+      .p-val {
+        font-size: 2rem;
+        font-weight: 800;
+        color: var(--red);
+      }
+      .p-per {
+        font-size: 0.83rem;
+        color: var(--muted);
+      }
+      .p-feat {
+        list-style: none;
+        padding: 0;
+        margin: 1.25rem 0;
+      }
+      .p-feat li {
+        padding: 0.38rem 0;
+        font-size: 0.88rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        border-bottom: 1px solid var(--border);
+      }
+      .p-feat li:last-child {
+        border-bottom: none;
+      }
+      .ck {
+        color: #16a34a;
+        font-size: 0.75rem;
+      }
+      .cx {
+        color: #94a3b8;
+        font-size: 0.75rem;
+      }
+
+      /* FOOTER */
+      footer {
+        background: var(--ink);
+        color: rgba(255, 255, 255, 0.5);
+        padding: 3.5rem 0 2rem;
+      }
+      footer a {
+        color: rgba(255, 255, 255, 0.45);
+        text-decoration: none;
+        transition: color 0.2s;
+      }
+      footer a:hover {
+        color: var(--gold);
+      }
+
+      /* BTNS */
+      .btn-r {
+        background: var(--red);
+        color: #fff;
+        border: none;
+        border-radius: 10px;
+        padding: 0.7rem 1.6rem;
+        font-weight: 700;
+        font-size: 0.95rem;
+        cursor: pointer;
+        transition: all 0.22s;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.45rem;
+        box-shadow: 0 3px 14px rgba(220, 38, 38, 0.3);
+      }
+      .btn-r:hover {
+        background: #b91c1c;
+        transform: translateY(-1px);
+        color: #fff;
+        box-shadow: 0 6px 20px rgba(220, 38, 38, 0.4);
+      }
+      .btn-o {
+        background: transparent;
+        border: 2px solid var(--border);
+        color: var(--ink);
+        border-radius: 10px;
+        padding: 0.68rem 1.5rem;
+        font-weight: 600;
+        font-size: 0.95rem;
+        cursor: pointer;
+        transition: all 0.22s;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.45rem;
+      }
+      .btn-o:hover {
+        border-color: var(--red);
+        color: var(--red);
+      }
+
+      /* REVEAL */
+      .reveal {
+        opacity: 0;
+        transform: translateY(28px);
+        transition:
+          opacity 0.6s ease,
+          transform 0.6s ease;
+      }
+      .reveal.visible {
+        opacity: 1;
+        transform: translateY(0);
+      }
+      .rd1 {
+        transition-delay: 0.1s;
+      }
+      .rd2 {
+        transition-delay: 0.2s;
+      }
+      .rd3 {
+        transition-delay: 0.3s;
+      }
+      .rd4 {
+        transition-delay: 0.4s;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- ████ NAVBAR ████ -->
+    <nav id="nav">
+      <div class="container d-flex align-items-center justify-content-between">
+        <a
+          href="index.html"
+          style="
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+          "
+        >
+          <span class="nav-logo-char">漢</span>
+          <span class="nav-logo-text">HánYǔ</span>
+        </a>
+
+        <button class="hamburger" onclick="toggleMenu()" aria-label="Menu">
+          <i class="fa fa-bars"></i>
+        </button>
+
+        <div
+          id="navMenu"
+          style="display: flex; align-items: center; gap: 0.5rem"
+        >
+          <button
+            class="hamburger"
+            style="position: absolute; top: 1.5rem; right: 1.5rem"
+            onclick="closeMenu()"
+          >
+            <i class="fa fa-times"></i>
+          </button>
+          <a href="#features" class="nav-link-c" onclick="closeMenu()"
+            >Tính Năng</a
+          >
+          <a href="#hsk" class="nav-link-c" onclick="closeMenu()">Lộ Trình</a>
+          <a href="#pricing" class="nav-link-c" onclick="closeMenu()"
+            >Học Phí</a
+          >
+          <a href="pages/chatbot.html" class="nav-link-c" onclick="closeMenu()"
+            ><i class="fa fa-robot me-1" style="color: #f59e0b"></i>AI Tutor</a
+          >
+          <!-- Guest -->
+          <a
+            href="pages/login.html"
+            class="btn-nl"
+            id="navLoginBtn"
+            onclick="closeMenu()"
+            >Đăng Nhập</a
+          >
+          <a
+            href="pages/register.html"
+            class="btn-nc"
+            id="navRegisterBtn"
+            onclick="closeMenu()"
+            >Bắt Đầu →</a
+          >
+          <!-- Logged in -->
+          <a
+            href="pages/lessons.html"
+            class="btn-nl"
+            id="navUserBtn"
+            onclick="closeMenu()"
+            style="display: none; align-items: center; gap: 0.45rem"
+          >
+            <span
+              id="navUserAvatar"
+              style="
+                width: 24px;
+                height: 24px;
+                border-radius: 50%;
+                background: var(--red);
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 0.75rem;
+                font-weight: 700;
+                color: #fff;
+              "
+              >L</span
+            >
+            <span id="navUserName">Học Viên</span>
+          </a>
+          <a
+            href="pages/lessons.html"
+            class="btn-nc"
+            id="navDashBtn"
+            onclick="closeMenu()"
+            style="display: none"
+            >📚 Tiếp Tục Học</a
+          >
+        </div>
+      </div>
+    </nav>
+
+    <!-- ████ HERO ████ -->
+    <section class="hero">
+      <div class="hero-grid"></div>
+      <div class="hero-glow g1"></div>
+      <div class="hero-glow g2"></div>
+      <div class="hero-glow g3"></div>
+      <div class="hero-chars" aria-hidden="true">
+        <span class="hc">你</span><span class="hc">好</span
+        ><span class="hc">学</span><span class="hc">习</span>
+        <span class="hc">中</span><span class="hc">文</span
+        ><span class="hc">语</span><span class="hc">言</span>
+      </div>
+      <div
+        class="text-center"
+        style="position: relative; z-index: 2; max-width: 740px; width: 100%"
+      >
+        <div class="hero-badge">
+          <span class="dot"></span>Nền tảng học tiếng Trung #1 Việt Nam
+        </div>
+        <h1 class="hero-title">
+          Học Tiếng Trung<br /><span class="accent">Thông Minh & Hiệu Quả</span>
+        </h1>
+        <p class="hero-sub">
+          AI Chatbot 24/7 · Flashcard Spaced Repetition · Luyện phát âm · Quiz
+          tương tác<br />Từ HSK 1 đến HSK 6 — Lộ trình cá nhân hóa cho từng học
+          viên
+        </p>
+        <div class="hero-btns">
+          <a href="pages/register.html" class="btn-hp" id="heroPrimaryBtn"
+            ><i class="fa fa-play"></i>Học Ngay — Miễn Phí</a
+          >
+          <a href="pages/chatbot.html" class="btn-hs"
+            ><i class="fa fa-robot" style="color: #f59e0b"></i>Thử AI Tutor</a
+          >
+        </div>
+        <div class="stat-pills">
+          <div class="stat-pill">
+            <span class="n">50K+</span><span class="l">Học viên</span>
+          </div>
+          <div class="stat-pill">
+            <span class="n">500+</span><span class="l">Bài học</span>
+          </div>
+          <div class="stat-pill">
+            <span class="n">10K+</span><span class="l">Từ vựng</span>
+          </div>
+          <div class="stat-pill">
+            <span class="n">24/7</span><span class="l">AI hỗ trợ</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ████ FEATURES ████ -->
+    <section id="features" style="background: #fff">
+      <div class="container">
+        <div class="text-center mb-5 reveal">
+          <span class="sec-label">Tính Năng</span>
+          <h2 class="sec-title">Tại Sao Chọn <span>HánYǔ?</span></h2>
+          <p class="sec-sub">
+            Phương pháp học tối ưu kết hợp AI và khoa học nhận thức
+          </p>
+        </div>
+        <div class="row g-3">
+          <div class="col-md-6 col-lg-4 reveal rd1">
+            <div class="feat-card">
+              <div class="feat-icon" style="background: #fef2f2">
+                <i class="fa fa-robot" style="color: #dc2626"></i>
+              </div>
+              <h5>AI Chatbot Tutor</h5>
+              <p>
+                Trò chuyện 24/7 với 小明 — AI dạy tiếng Trung. Sửa lỗi ngữ pháp,
+                giải thích từ theo ngữ cảnh thực tế.
+              </p>
+            </div>
+          </div>
+          <div class="col-md-6 col-lg-4 reveal rd2">
+            <div class="feat-card">
+              <div class="feat-icon" style="background: #eff6ff">
+                <i class="fa fa-microphone" style="color: #2563eb"></i>
+              </div>
+              <h5>Luyện Phát Âm AI</h5>
+              <p>
+                Nhận diện giọng nói, đánh giá thanh điệu 1-4. Phát âm chuẩn Phổ
+                Thông Thoại với phản hồi tức thì.
+              </p>
+            </div>
+          </div>
+          <div class="col-md-6 col-lg-4 reveal rd3">
+            <div class="feat-card">
+              <div class="feat-icon" style="background: #f0fdf4">
+                <i class="fa fa-layer-group" style="color: #16a34a"></i>
+              </div>
+              <h5>Flashcard Thông Minh</h5>
+              <p>
+                Thuật toán Spaced Repetition SM-2 tối ưu thời điểm ôn tập, giúp
+                nhớ từ vựng lâu dài và hiệu quả.
+              </p>
+            </div>
+          </div>
+          <div class="col-md-6 col-lg-4 reveal rd1">
+            <div class="feat-card">
+              <div class="feat-icon" style="background: #fefce8">
+                <i class="fa fa-pen-nib" style="color: #d97706"></i>
+              </div>
+              <h5>Luyện Viết Chữ Hán</h5>
+              <p>
+                Canvas tương tác nhận diện nét bút, hướng dẫn thứ tự viết theo
+                quy tắc thư pháp truyền thống.
+              </p>
+            </div>
+          </div>
+          <div class="col-md-6 col-lg-4 reveal rd2">
+            <div class="feat-card">
+              <div class="feat-icon" style="background: #f5f3ff">
+                <i class="fa fa-trophy" style="color: #7c3aed"></i>
+              </div>
+              <h5>Gamification</h5>
+              <p>
+                Hệ thống XP, huy hiệu, bảng xếp hạng. Streak liên tiếp và thử
+                thách hằng ngày giữ động lực.
+              </p>
+            </div>
+          </div>
+          <div class="col-md-6 col-lg-4 reveal rd3">
+            <div class="feat-card">
+              <div class="feat-icon" style="background: #f0f9ff">
+                <i class="fa fa-chart-line" style="color: #0284c7"></i>
+              </div>
+              <h5>Theo Dõi Tiến Độ</h5>
+              <p>
+                Dashboard thống kê: từ đã học, giờ học, điểm thi. Lộ trình cá
+                nhân hóa theo mục tiêu cụ thể.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ████ HSK ████ -->
+    <section id="hsk" style="background: var(--bg)">
+      <div class="container">
+        <div class="text-center mb-5 reveal">
+          <span class="sec-label">Lộ Trình</span>
+          <h2 class="sec-title">Học Theo Chuẩn <span>HSK</span></h2>
+          <p class="sec-sub">
+            6 cấp độ từ sơ cấp đến thành thạo — tiêu chuẩn quốc tế Trung Quốc
+          </p>
+        </div>
+        <div class="hsk-grid reveal">
+          <a
+            href="pages/lessons.html?level=1"
+            class="hsk-card hsk-1"
+            data-hanzi="一"
+          >
+            <div class="hsk-lv">HSK 1</div>
+            <div class="hsk-inf">150 từ · 15 bài học · Người mới</div>
+            <div class="hsk-bar">
+              <div
+                class="hsk-bar-f hsk-prog"
+                data-hsk="1"
+                style="width: 0%"
+              ></div>
+            </div>
+          </a>
+          <a
+            href="pages/lessons.html?level=2"
+            class="hsk-card hsk-2"
+            data-hanzi="二"
+          >
+            <div class="hsk-lv">HSK 2</div>
+            <div class="hsk-inf">300 từ · 25 bài học · Cơ bản</div>
+            <div class="hsk-bar">
+              <div
+                class="hsk-bar-f hsk-prog"
+                data-hsk="2"
+                style="width: 0%"
+              ></div>
+            </div>
+          </a>
+          <a
+            href="pages/lessons.html?level=3"
+            class="hsk-card hsk-3"
+            data-hanzi="三"
+          >
+            <div class="hsk-lv">HSK 3</div>
+            <div class="hsk-inf">600 từ · 40 bài học · Trung cấp thấp</div>
+            <div class="hsk-bar">
+              <div
+                class="hsk-bar-f hsk-prog"
+                data-hsk="3"
+                style="width: 0%"
+              ></div>
+            </div>
+          </a>
+          <a
+            href="pages/lessons.html?level=4"
+            class="hsk-card hsk-4"
+            data-hanzi="四"
+          >
+            <div class="hsk-lv">HSK 4</div>
+            <div class="hsk-inf">1200 từ · 60 bài học · Trung cấp</div>
+            <div class="hsk-bar">
+              <div
+                class="hsk-bar-f hsk-prog"
+                data-hsk="4"
+                style="width: 0%"
+              ></div>
+            </div>
+          </a>
+          <a
+            href="pages/lessons.html?level=5"
+            class="hsk-card hsk-5"
+            data-hanzi="五"
+          >
+            <div class="hsk-lv">HSK 5</div>
+            <div class="hsk-inf">2500 từ · 80 bài học · Cao cấp</div>
+            <div class="hsk-bar">
+              <div
+                class="hsk-bar-f hsk-prog"
+                data-hsk="5"
+                style="width: 0%"
+              ></div>
+            </div>
+          </a>
+          <a
+            href="pages/lessons.html?level=6"
+            class="hsk-card hsk-6"
+            data-hanzi="六"
+          >
+            <div class="hsk-lv">HSK 6</div>
+            <div class="hsk-inf">5000+ từ · 100 bài · Thành thạo</div>
+            <div class="hsk-bar">
+              <div
+                class="hsk-bar-f hsk-prog"
+                data-hsk="6"
+                style="width: 0%"
+              ></div>
+            </div>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ████ CHATBOT PROMO ████ -->
+    <section class="chat-promo">
+      <div class="container py-5">
+        <div class="row align-items-center g-5">
+          <div class="col-lg-6 reveal" style="position: relative; z-index: 2">
+            <span
+              class="sec-label"
+              style="
+                background: rgba(245, 158, 11, 0.15);
+                color: #f59e0b;
+                border-color: rgba(245, 158, 11, 0.3);
+              "
+              >AI Tutor</span
+            >
+            <h2 class="sec-title" style="color: #fff">
+              Gặp Gỡ <span style="color: var(--gold)">小明</span><br />Gia Sư AI
+              Của Bạn
+            </h2>
+            <p
+              style="
+                color: rgba(255, 255, 255, 0.6);
+                font-size: 0.97rem;
+                line-height: 1.75;
+                margin-bottom: 1.75rem;
+              "
+            >
+              Chat tiếng Trung bất cứ lúc nào. AI sửa lỗi phát âm, giải thích
+              ngữ pháp, dạy từ mới theo ngữ cảnh — như gia sư thực thụ bên cạnh
+              24/7.
+            </p>
+            <div
+              style="
+                display: flex;
+                flex-wrap: wrap;
+                gap: 0.4rem;
+                margin-bottom: 2rem;
+              "
+            >
+              <span
+                style="
+                  background: rgba(255, 255, 255, 0.07);
+                  border: 1px solid rgba(255, 255, 255, 0.12);
+                  border-radius: 999px;
+                  padding: 0.35rem 0.9rem;
+                  color: rgba(255, 255, 255, 0.8);
+                  font-size: 0.8rem;
+                "
+                ><i class="fa fa-check me-1" style="color: #4ade80"></i>Sửa lỗi
+                ngữ pháp</span
+              >
+              <span
+                style="
+                  background: rgba(255, 255, 255, 0.07);
+                  border: 1px solid rgba(255, 255, 255, 0.12);
+                  border-radius: 999px;
+                  padding: 0.35rem 0.9rem;
+                  color: rgba(255, 255, 255, 0.8);
+                  font-size: 0.8rem;
+                "
+                ><i class="fa fa-check me-1" style="color: #4ade80"></i>Dạy từ
+                vựng theo chủ đề</span
+              >
+              <span
+                style="
+                  background: rgba(255, 255, 255, 0.07);
+                  border: 1px solid rgba(255, 255, 255, 0.12);
+                  border-radius: 999px;
+                  padding: 0.35rem 0.9rem;
+                  color: rgba(255, 255, 255, 0.8);
+                  font-size: 0.8rem;
+                "
+                ><i class="fa fa-check me-1" style="color: #4ade80"></i>Ra đề
+                thi & chấm điểm</span
+              >
+              <span
+                style="
+                  background: rgba(255, 255, 255, 0.07);
+                  border: 1px solid rgba(255, 255, 255, 0.12);
+                  border-radius: 999px;
+                  padding: 0.35rem 0.9rem;
+                  color: rgba(255, 255, 255, 0.8);
+                  font-size: 0.8rem;
+                "
+                ><i class="fa fa-check me-1" style="color: #4ade80"></i>Luyện
+                hội thoại thực tế</span
+              >
+            </div>
+            <a
+              href="pages/chatbot.html"
+              class="btn-r"
+              style="font-size: 1rem; padding: 0.9rem 2rem"
+            >
+              <i class="fa fa-robot"></i>Bắt Đầu Chat Ngay — Miễn Phí
+            </a>
+          </div>
+          <div
+            class="col-lg-6 reveal rd2"
+            style="position: relative; z-index: 2"
+          >
+            <div class="chat-mockup">
+              <div class="chat-mh">
+                <div class="cmd" style="background: #ef4444"></div>
+                <div class="cmd" style="background: #f59e0b"></div>
+                <div class="cmd" style="background: #22c55e"></div>
+                <span
+                  style="
+                    color: rgba(255, 255, 255, 0.45);
+                    font-size: 0.78rem;
+                    margin-left: 0.5rem;
+                  "
+                  >小明 AI Tutor · <span style="color: #4ade80">●</span> Trực
+                  tuyến</span
+                >
+              </div>
+              <div
+                style="
+                  padding: 1.2rem;
+                  display: flex;
+                  flex-direction: column;
+                  gap: 0.85rem;
+                "
+              >
+                <div
+                  style="display: flex; gap: 0.6rem; align-items: flex-start"
+                >
+                  <div
+                    style="
+                      width: 28px;
+                      height: 28px;
+                      border-radius: 50%;
+                      background: var(--red);
+                      display: flex;
+                      align-items: center;
+                      justify-content: center;
+                      font-size: 0.7rem;
+                      color: #fff;
+                      flex-shrink: 0;
+                    "
+                  >
+                    <i class="fa fa-robot"></i>
+                  </div>
+                  <div class="bubble b-bot">
+                    你好！我是小明。<br /><span
+                      style="opacity: 0.65; font-size: 0.78rem"
+                      >Hôm nay bạn muốn học gì? 😊</span
+                    >
+                  </div>
+                </div>
+                <div
+                  style="
+                    display: flex;
+                    gap: 0.6rem;
+                    align-items: flex-start;
+                    flex-direction: row-reverse;
+                  "
+                >
+                  <div
+                    style="
+                      width: 28px;
+                      height: 28px;
+                      border-radius: 50%;
+                      background: #334155;
+                      display: flex;
+                      align-items: center;
+                      justify-content: center;
+                      font-size: 0.7rem;
+                      color: #fff;
+                      flex-shrink: 0;
+                    "
+                  >
+                    <i class="fa fa-user"></i>
+                  </div>
+                  <div class="bubble b-user">Dạy tôi cách chào hỏi cơ bản</div>
+                </div>
+                <div
+                  style="display: flex; gap: 0.6rem; align-items: flex-start"
+                >
+                  <div
+                    style="
+                      width: 28px;
+                      height: 28px;
+                      border-radius: 50%;
+                      background: var(--red);
+                      display: flex;
+                      align-items: center;
+                      justify-content: center;
+                      font-size: 0.7rem;
+                      color: #fff;
+                      flex-shrink: 0;
+                    "
+                  >
+                    <i class="fa fa-robot"></i>
+                  </div>
+                  <div class="bubble b-bot">
+                    <div class="b-hanzi">你好！(Nǐ hǎo!)</div>
+                    <div style="opacity: 0.7; font-size: 0.78rem">
+                      = Xin chào! ·
+                      <span style="color: #f59e0b">Thanh 3↘↗</span>
+                    </div>
+                    <div
+                      style="
+                        margin-top: 0.35rem;
+                        opacity: 0.7;
+                        font-size: 0.78rem;
+                      "
+                    >
+                      💡 你 = bạn · 好 = tốt/khỏe
+                    </div>
+                  </div>
+                </div>
+                <div
+                  style="
+                    display: flex;
+                    gap: 0.6rem;
+                    align-items: flex-start;
+                    flex-direction: row-reverse;
+                  "
+                >
+                  <div
+                    style="
+                      width: 28px;
+                      height: 28px;
+                      border-radius: 50%;
+                      background: #334155;
+                      display: flex;
+                      align-items: center;
+                      justify-content: center;
+                      font-size: 0.7rem;
+                      color: #fff;
+                      flex-shrink: 0;
+                    "
+                  >
+                    <i class="fa fa-user"></i>
+                  </div>
+                  <div class="bubble b-user">你好！我是越南人</div>
+                </div>
+                <div
+                  style="display: flex; gap: 0.6rem; align-items: flex-start"
+                >
+                  <div
+                    style="
+                      width: 28px;
+                      height: 28px;
+                      border-radius: 50%;
+                      background: var(--red);
+                      display: flex;
+                      align-items: center;
+                      justify-content: center;
+                      font-size: 0.7rem;
+                      color: #fff;
+                      flex-shrink: 0;
+                    "
+                  >
+                    <i class="fa fa-robot"></i>
+                  </div>
+                  <div class="bubble b-bot">
+                    <span style="color: #4ade80">✅ Câu đúng rồi!</span><br />
+                    <div
+                      style="
+                        opacity: 0.7;
+                        font-size: 0.78rem;
+                        margin-top: 0.3rem;
+                      "
+                    >
+                      Thêm tên:
+                      <span class="b-hanzi" style="font-size: 0.95rem"
+                        >我叫…</span
+                      >
+                      (Wǒ jiào) = Tôi tên là...
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div
+                style="
+                  padding: 0.8rem 1.2rem;
+                  border-top: 1px solid rgba(255, 255, 255, 0.08);
+                  display: flex;
+                  gap: 0.55rem;
+                "
+              >
+                <div
+                  style="
+                    flex: 1;
+                    background: rgba(255, 255, 255, 0.07);
+                    border-radius: 8px;
+                    padding: 0.5rem 0.9rem;
+                    color: rgba(255, 255, 255, 0.35);
+                    font-size: 0.82rem;
+                  "
+                >
+                  Nhập tin nhắn...
+                </div>
+                <div
+                  style="
+                    width: 32px;
+                    height: 32px;
+                    background: var(--red);
+                    border-radius: 8px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    color: #fff;
+                    font-size: 0.8rem;
+                    cursor: pointer;
+                  "
+                >
+                  <i class="fa fa-paper-plane"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ████ PRICING ████ -->
+    <section id="pricing" style="background: var(--bg)">
+      <div class="container">
+        <div class="text-center mb-5 reveal">
+          <span class="sec-label">Học Phí</span>
+          <h2 class="sec-title">Giá Cả <span>Hợp Lý</span></h2>
+          <p class="sec-sub">Bắt đầu miễn phí, nâng cấp khi sẵn sàng</p>
+        </div>
+        <div class="row g-4 justify-content-center">
+          <div class="col-md-4 reveal rd1">
+            <div class="pc">
+              <h5
+                style="
+                  font-family: var(--font-d);
+                  font-weight: 700;
+                  margin-bottom: 0.5rem;
+                "
+              >
+                Miễn Phí
+              </h5>
+              <div>
+                <span class="p-val">0đ</span> <span class="p-per">/tháng</span>
+              </div>
+              <ul class="p-feat">
+                <li><i class="fa fa-check ck"></i>HSK 1 đầy đủ (15 bài)</li>
+                <li><i class="fa fa-check ck"></i>50 flashcard/ngày</li>
+                <li><i class="fa fa-check ck"></i>AI Chat 10 tin/ngày</li>
+                <li><i class="fa fa-check ck"></i>Quiz cơ bản</li>
+                <li><i class="fa fa-times cx"></i>Luyện phát âm AI</li>
+                <li><i class="fa fa-times cx"></i>HSK 2-6</li>
+              </ul>
+              <button
+                id="btnPlanFree"
+                onclick="goPlan('free')"
+                class="btn-o"
+                style="width: 100%; justify-content: center; cursor: pointer"
+              >
+                Bắt Đầu Ngay
+              </button>
+            </div>
+          </div>
+          <div class="col-md-4 reveal rd2">
+            <div class="pc pop">
+              <div class="pop-tag">⭐ Phổ Biến Nhất</div>
+              <h5
+                style="
+                  font-family: var(--font-d);
+                  font-weight: 700;
+                  margin-bottom: 0.5rem;
+                "
+              >
+                Pro
+              </h5>
+              <div>
+                <span class="p-val">199K</span>
+                <span class="p-per">/tháng</span>
+              </div>
+              <ul class="p-feat">
+                <li><i class="fa fa-check ck"></i>Tất cả HSK 1-4</li>
+                <li><i class="fa fa-check ck"></i>Flashcard không giới hạn</li>
+                <li><i class="fa fa-check ck"></i>AI Chat không giới hạn</li>
+                <li><i class="fa fa-check ck"></i>Luyện phát âm AI</li>
+                <li><i class="fa fa-check ck"></i>Báo cáo tiến độ chi tiết</li>
+                <li><i class="fa fa-times cx"></i>HSK 5-6</li>
+              </ul>
+              <button
+                id="btnPlanPro"
+                onclick="goPlan('pro')"
+                class="btn-r"
+                style="width: 100%; justify-content: center; cursor: pointer"
+              >
+                Dùng Thử 7 Ngày
+              </button>
+            </div>
+          </div>
+          <div class="col-md-4 reveal rd3">
+            <div class="pc">
+              <h5
+                style="
+                  font-family: var(--font-d);
+                  font-weight: 700;
+                  margin-bottom: 0.5rem;
+                "
+              >
+                Premium
+              </h5>
+              <div>
+                <span class="p-val">399K</span>
+                <span class="p-per">/tháng</span>
+              </div>
+              <ul class="p-feat">
+                <li><i class="fa fa-check ck"></i>Tất cả HSK 1-6</li>
+                <li><i class="fa fa-check ck"></i>Học 1-1 với gia sư thật</li>
+                <li><i class="fa fa-check ck"></i>Chứng chỉ hoàn thành</li>
+                <li><i class="fa fa-check ck"></i>Ưu tiên hỗ trợ 24/7</li>
+                <li><i class="fa fa-check ck"></i>Tài liệu luyện thi HSK</li>
+                <li><i class="fa fa-check ck"></i>Nhóm học tập private</li>
+              </ul>
+              <button
+                id="btnPlanPremium"
+                onclick="goPlan('premium')"
+                class="btn-o"
+                style="width: 100%; justify-content: center; cursor: pointer"
+              >
+                Đăng Ký Premium
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ████ FOOTER ████ -->
+    <footer>
+      <div class="container">
+        <div class="row g-4">
+          <div class="col-lg-4">
+            <div
+              style="
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+                margin-bottom: 1rem;
+              "
+            >
+              <span class="nav-logo-char">漢</span
+              ><span class="nav-logo-text">HánYǔ</span>
+            </div>
+            <p
+              style="
+                font-size: 0.85rem;
+                line-height: 1.7;
+                color: rgba(255, 255, 255, 0.4);
+              "
+            >
+              Nền tảng học tiếng Trung thông minh với AI. Từ sơ cấp đến thành
+              thạo, đồng hành bởi công nghệ hiện đại.
+            </p>
+            <div style="display: flex; gap: 0.7rem; margin-top: 1rem">
+              <a href="#"><i class="fab fa-facebook"></i></a>
+              <a href="#"><i class="fab fa-youtube"></i></a>
+              <a href="#"><i class="fab fa-tiktok"></i></a>
+              <a href="#"><i class="fab fa-github"></i></a>
+            </div>
+          </div>
+          <div class="col-6 col-lg-2">
+            <div
+              style="
+                color: rgba(255, 255, 255, 0.65);
+                font-weight: 600;
+                font-size: 0.83rem;
+                margin-bottom: 0.7rem;
+              "
+            >
+              Học tập
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 0.4rem">
+              <a href="pages/lessons.html" style="font-size: 0.83rem"
+                >Bài Học HSK</a
+              >
+              <a href="pages/vocabulary.html" style="font-size: 0.83rem"
+                >Từ Vựng</a
+              >
+              <a href="pages/quiz.html" style="font-size: 0.83rem">Kiểm Tra</a>
+              <a href="pages/chatbot.html" style="font-size: 0.83rem"
+                >AI Tutor</a
+              >
+            </div>
+          </div>
+          <div class="col-6 col-lg-2">
+            <div
+              style="
+                color: rgba(255, 255, 255, 0.65);
+                font-weight: 600;
+                font-size: 0.83rem;
+                margin-bottom: 0.7rem;
+              "
+            >
+              Tài khoản
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 0.4rem">
+              <a href="pages/register.html" style="font-size: 0.83rem"
+                >Đăng Ký</a
+              >
+              <a href="pages/login.html" style="font-size: 0.83rem"
+                >Đăng Nhập</a
+              >
+              <a href="#pricing" style="font-size: 0.83rem">Nâng Cấp</a>
+            </div>
+          </div>
+        </div>
+        <hr style="border-color: rgba(255, 255, 255, 0.08); margin: 2rem 0" />
+        <div
+          style="
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            font-size: 0.8rem;
+          "
+        >
+          <span>© 2026 HánYǔ. Made with ❤️ in Hà Nội</span>
+          <span>Điều khoản · Bảo mật · Liên hệ</span>
+        </div>
+      </div>
+    </footer>
+
+    <script>
+      // ── Helper: đọc token/user từ cả localStorage lẫn sessionStorage ──
+      function getToken() {
+        const hasUser =
+          localStorage.getItem("hanyuUser") ||
+          sessionStorage.getItem("hanyuUser");
+        return hasUser ? "cookie-session" : null;
+      }
+      function getUser() {
+        try {
+          return JSON.parse(
+            localStorage.getItem("hanyuUser") ||
+              sessionStorage.getItem("hanyuUser") ||
+              "{}",
+          );
+        } catch (e) {
+          return {};
+        }
+      }
+
+      async function restoreHomeSession() {
+        if (getUser()?.id) return getUser();
+        try {
+          const refreshRes = await fetch("/api/auth/refresh", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            credentials: "include",
+          });
+          const refreshData = await refreshRes.json();
+          if (!refreshRes.ok || !refreshData.token) return null;
+
+          const meRes = await fetch("/api/auth/me", {
+            headers: { Authorization: `Bearer ${refreshData.token}` },
+            credentials: "include",
+          });
+          if (!meRes.ok) return null;
+
+          const { user } = await meRes.json();
+          if (!user?.id) return null;
+
+          localStorage.setItem("hanyuUser", JSON.stringify(user));
+          localStorage.setItem("hanyuAccessToken", refreshData.token);
+          return user;
+        } catch {
+          return null;
+        }
+      }
+
+      (async () => {
+        if (getUser()?.id) {
+          sessionStorage.removeItem("hanyuHomeRestoredOnce");
+          return;
+        }
+        if (sessionStorage.getItem("hanyuHomeRestoredOnce")) return;
+        const restored = await restoreHomeSession();
+        if (restored) {
+          sessionStorage.setItem("hanyuHomeRestoredOnce", "1");
+          window.location.reload();
+        }
+      })();
+
+      // Navbar scroll
+      const nav = document.getElementById("nav");
+      window.addEventListener(
+        "scroll",
+        () => nav.classList.toggle("solid", scrollY > 60),
+        { passive: true },
+      );
+
+      // Mobile menu
+      function toggleMenu() {
+        const m = document.getElementById("navMenu");
+        m.classList.toggle("open");
+        document.body.style.overflow = m.classList.contains("open")
+          ? "hidden"
+          : "";
+      }
+      function closeMenu() {
+        document.getElementById("navMenu").classList.remove("open");
+        document.body.style.overflow = "";
+      }
+
+      // Scroll reveal
+      const io = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((e) => {
+            if (e.isIntersecting) {
+              e.target.classList.add("visible");
+              io.unobserve(e.target);
+            }
+          });
+        },
+        { threshold: 0.1 },
+      );
+      document.querySelectorAll(".reveal").forEach((el) => io.observe(el));
+
+      // Smooth scroll
+      document.querySelectorAll('a[href^="#"]').forEach((a) => {
+        a.addEventListener("click", (e) => {
+          const t = document.querySelector(a.getAttribute("href"));
+          if (t) {
+            e.preventDefault();
+            t.scrollIntoView({ behavior: "smooth" });
+            closeMenu();
+          }
+        });
+      });
+
+      // ── AUTH-AWARE UI ──
+      (function () {
+        const token = getToken();
+        const user = getUser();
+        if (!token || !user.name) return; // chưa đăng nhập → giữ nguyên
+
+        // Navbar: ẩn Đăng Nhập / Bắt Đầu, hiện tên user + Tiếp Tục Học
+        document.getElementById("navLoginBtn").style.display = "none";
+        document.getElementById("navRegisterBtn").style.display = "none";
+        document.getElementById("navUserBtn").style.display = "inline-flex";
+        document.getElementById("navDashBtn").style.display = "inline-flex";
+        document.getElementById("navUserName").textContent = user.name;
+        document.getElementById("navUserAvatar").textContent =
+          user.name[0].toUpperCase();
+
+        // Hero: nút "Học Ngay" → chuyển thẳng vào lessons
+        const heroBtn = document.getElementById("heroPrimaryBtn");
+        if (heroBtn) {
+          heroBtn.href = "pages/lessons.html";
+          heroBtn.innerHTML = '<i class="fa fa-book-open"></i>Tiếp Tục Học';
+        }
+
+        // ── CẬP NHẬT NÚT PRICING THEO GÓI ĐÃ MUA ──
+        // Logic: premium → tất cả nút "Bắt Đầu Học"
+        //        pro     → nút pro + free thành "Bắt Đầu Học", premium giữ nguyên
+        //        free    → giữ nguyên tất cả
+        const userPlan = (user.plan || "free").toLowerCase();
+        const btnPro = document.getElementById("btnPlanPro");
+        const btnPremium = document.getElementById("btnPlanPremium");
+        const btnFree = document.getElementById("btnPlanFree");
+
+        function setActivePlanBtn(btn, label) {
+          if (!btn) return;
+          btn.textContent = label;
+          btn.onclick = () => {
+            window.location.href = "pages/lessons.html";
+          };
+          btn.classList.remove("btn-r");
+          btn.classList.add("btn-o");
+          // Style nút "đang dùng": nền xanh lá nhẹ để phân biệt
+          btn.style.background = "linear-gradient(135deg,#16a34a,#15803d)";
+          btn.style.color = "#fff";
+          btn.style.border = "none";
+        }
+
+        if (userPlan === "premium") {
+          setActivePlanBtn(btnFree, "✓ Bắt Đầu Học");
+          setActivePlanBtn(btnPro, "✓ Bắt Đầu Học");
+          setActivePlanBtn(btnPremium, "✓ Bắt Đầu Học");
+        } else if (userPlan === "pro") {
+          setActivePlanBtn(btnFree, "✓ Bắt Đầu Học");
+          setActivePlanBtn(btnPro, "✓ Bắt Đầu Học");
+          // btnPremium giữ nguyên để user có thể nâng cấp
+        }
+      })();
+
+      // ── HSK PROGRESS BARS ──
+      (function () {
+        // Tổng số từ vựng mỗi HSK (từ DEMO_VOCAB trong vocabulary.html)
+        const HSK_TOTAL = { 1: 72, 2: 53, 3: 47, 4: 0, 5: 0, 6: 0 };
+        const uid = getUser().id || "guest";
+        const p = JSON.parse(
+          localStorage.getItem("hanyuProgress_" + uid) || "{}",
+        );
+        // learnedByHsk: { 1: Set of lesson_ids done, ... } — hoặc đơn giản dùng xp tỉ lệ
+        // Dùng completedLessons per HSK nếu có, fallback về xp
+        document.querySelectorAll(".hsk-prog").forEach((bar) => {
+          const hsk = parseInt(bar.dataset.hsk);
+          const total = HSK_TOTAL[hsk] || 1;
+          // Đếm từ đã học của HSK này từ progress
+          const learned = p["learnedWords_hsk" + hsk] || 0;
+          const pct = Math.min(100, Math.round((learned / total) * 100));
+          bar.style.width = pct + "%";
+        });
+      })();
+
+      // ── PRICING BUTTONS ──
+      function goPlan(plan) {
+        const token = getToken();
+        if (plan === "free") {
+          // Free: vào register nếu chưa có tài khoản, vào lessons nếu đã đăng nhập
+          window.location.href = token
+            ? "pages/lessons.html"
+            : "pages/register.html";
+          return;
+        }
+        if (!token) {
+          // Chưa đăng nhập: vào register, sau đó redirect về payment
+          localStorage.setItem("payAfterLogin", `payment.html?plan=${plan}`);
+          window.location.href = `pages/register.html?redirect=payment.html?plan=${plan}`;
+        } else {
+          window.location.href = `pages/payment.html?plan=${plan}`;
+        }
+      }
+    </script>
+  </body>
+</html>

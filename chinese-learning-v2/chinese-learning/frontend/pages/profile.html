@@ -1,0 +1,317 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Hồ Sơ | HánYǔ</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN"
+      crossorigin="anonymous"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700;900&family=Outfit:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <!-- FIX N25: CSS tách ra file riêng -->
+    <link rel="stylesheet" href="../css/app.css" />
+    <link rel="stylesheet" href="../css/profile.css" />
+  </head>
+  <body>
+    <div class="app">
+      <!-- SIDEBAR -->
+      <div class="sidebar">
+        <div class="sb-top">
+          <a href="../index.html" class="sb-logo">
+            <span class="sb-logo-c">漢</span>
+            <span class="sb-logo-t">HánYǔ</span>
+          </a>
+          <div class="user-card">
+            <div
+              style="
+                display: flex;
+                align-items: center;
+                gap: 0.6rem;
+                margin-bottom: 0.5rem;
+              "
+            >
+              <div class="user-ava" id="uAva">?</div>
+              <div>
+                <div class="user-name" id="uName">…</div>
+                <div class="user-sub">
+                  HSK <span id="uHSK">1</span> · <span id="uXP">0</span> XP
+                </div>
+              </div>
+            </div>
+            <div class="xp-bar">
+              <div class="xp-bar-fill" id="uXPBar" style="width: 0%"></div>
+            </div>
+            <div style="margin-top: 0.4rem">
+              <small style="color: rgba(255, 255, 255, 0.4); font-size: 0.7rem"
+                >Streak:
+                <span id="uStreak" style="color: var(--gold)">🔥 0</span></small
+              >
+            </div>
+          </div>
+        </div>
+        <div class="sb-nav">
+          <a class="sb-link" href="lessons.html"
+            ><i class="fa fa-book-open"></i> Bài Học</a
+          >
+          <a class="sb-link" href="vocabulary.html"
+            ><i class="fa fa-language"></i> Từ Vựng</a
+          >
+          <a class="sb-link" href="quiz.html"
+            ><i class="fa fa-question-circle"></i> Kiểm Tra</a
+          >
+          <a class="sb-link" href="chatbot.html"
+            ><i class="fa fa-robot"></i> AI Tutor</a
+          >
+          <hr class="sb-divider" />
+          <a class="sb-link" href="leaderboard.html"
+            ><i class="fa fa-trophy"></i> Bảng Xếp Hạng</a
+          >
+          <a class="sb-link active" href="profile.html"
+            ><i class="fa fa-user"></i> Hồ Sơ</a
+          >
+          <hr class="sb-divider" />
+          <a class="sb-link" href="#" onclick="logout()"
+            ><i class="fa fa-sign-out-alt"></i> Đăng Xuất</a
+          >
+        </div>
+      </div>
+
+      <!-- MAIN -->
+      <div class="main">
+        <div class="topbar">
+          <div>
+            <div class="page-title">👤 Hồ Sơ Cá Nhân</div>
+            <div class="page-date" id="todayDate"></div>
+          </div>
+          <div style="display: flex; gap: 0.5rem; flex-wrap: wrap">
+            <span class="badge-pill badge-streak"
+              >🔥 <span id="topStreak">0</span> ngày</span
+            >
+            <span class="badge-pill badge-xp"
+              >⚡ <span id="topXP">0</span> XP</span
+            >
+          </div>
+        </div>
+
+        <!-- Hero -->
+        <div class="hero">
+          <div class="hero-ava" id="heroAva" style="background: #dc2626">?</div>
+          <div>
+            <div class="hero-name" id="heroName">–</div>
+            <div class="hero-email" id="heroEmail">–</div>
+            <span class="plan-tag plan-free" id="planTag">👤 Free</span>
+          </div>
+          <div class="hero-right">
+            <div style="font-size: 0.72rem; opacity: 0.4" id="heroJoined">
+              Tham gia: –
+            </div>
+            <a href="payment.html?plan=pro" class="upgrade-btn" id="upgradeBtn"
+              >⭐ Nâng Cấp Pro</a
+            >
+          </div>
+        </div>
+
+        <!-- Stats -->
+        <div class="stats-row">
+          <div class="stat-card">
+            <div class="stat-val text-danger" id="sXP">0</div>
+            <div class="stat-lbl">⚡ Tổng XP</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-val" style="color: var(--gold)" id="sStreak">
+              0
+            </div>
+            <div class="stat-lbl">🔥 Streak</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-val text-primary" id="sHSK">HSK 1</div>
+            <div class="stat-lbl">📚 HSK Level</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-val text-success" id="sLessons">0</div>
+            <div class="stat-lbl">✅ Bài Đã Học</div>
+          </div>
+        </div>
+
+        <!-- Level progress -->
+        <div class="section">
+          <div class="sec-title">
+            <i class="fa fa-bolt text-warning"></i> Tiến Độ Cấp Độ
+          </div>
+          <div class="lv-row">
+            <div class="lv-badge" id="lvBadge">1</div>
+            <div style="flex: 1">
+              <div
+                style="
+                  display: flex;
+                  justify-content: space-between;
+                  align-items: baseline;
+                "
+              >
+                <span style="font-weight: 700; font-size: 0.88rem" id="lvName"
+                  >Người Mới</span
+                >
+                <span
+                  style="font-size: 0.8rem; font-weight: 800; color: var(--red)"
+                  id="lvPct"
+                  >0%</span
+                >
+              </div>
+              <div
+                style="
+                  font-size: 0.73rem;
+                  color: var(--muted);
+                  margin: 0.1rem 0 0.4rem;
+                "
+                id="lvSub"
+              >
+                0 / 500 XP
+              </div>
+              <div class="lv-bar">
+                <div class="lv-bar-fill" id="lvFill" style="width: 0%"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Achievements -->
+        <div class="section">
+          <div class="sec-title">
+            <i class="fa fa-medal text-warning"></i> Thành Tích
+          </div>
+          <div class="badges-grid" id="badgesGrid"></div>
+        </div>
+
+        <!-- Edit info -->
+        <div class="section">
+          <div class="sec-title">
+            <i class="fa fa-pen text-primary"></i> Chỉnh Sửa Thông Tin
+          </div>
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label">Họ và Tên</label>
+              <input
+                type="text"
+                class="form-control"
+                id="editName"
+                placeholder="Tên của bạn"
+              />
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Email</label>
+              <input
+                type="email"
+                class="form-control"
+                id="editEmail"
+                disabled
+              />
+            </div>
+          </div>
+          <div
+            style="
+              margin-top: 0.9rem;
+              display: flex;
+              align-items: center;
+              gap: 0.75rem;
+              flex-wrap: wrap;
+            "
+          >
+            <button class="btn-save" onclick="saveProfile()" id="btnSave">
+              <i class="fa fa-check me-1"></i>Lưu Thay Đổi
+            </button>
+            <span id="saveMsg"></span>
+          </div>
+        </div>
+
+        <!-- Change password -->
+        <div class="section" id="pwdSection">
+          <div class="sec-title">
+            <i class="fa fa-lock text-muted"></i> Đổi Mật Khẩu
+          </div>
+          <div class="row g-3">
+            <div class="col-md-4">
+              <label class="form-label">Mật khẩu hiện tại</label>
+              <input
+                type="password"
+                class="form-control"
+                id="pwdOld"
+                placeholder="••••••••"
+              />
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Mật khẩu mới</label>
+              <input
+                type="password"
+                class="form-control"
+                id="pwdNew"
+                placeholder="••••••••"
+              />
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Xác nhận mật khẩu mới</label>
+              <input
+                type="password"
+                class="form-control"
+                id="pwdConfirm"
+                placeholder="••••••••"
+              />
+            </div>
+          </div>
+          <div
+            style="
+              margin-top: 0.9rem;
+              display: flex;
+              align-items: center;
+              gap: 0.75rem;
+              flex-wrap: wrap;
+            "
+          >
+            <button class="btn-save" onclick="changePwd()" id="btnPwd">
+              <i class="fa fa-key me-1"></i>Đổi Mật Khẩu
+            </button>
+            <span id="pwdMsg"></span>
+          </div>
+        </div>
+
+        <!-- Danger zone -->
+        <div class="danger-zone">
+          <div class="sec-title" style="color: #b91c1c">
+            <i class="fa fa-triangle-exclamation"></i> Vùng Nguy Hiểm
+          </div>
+          <p
+            style="
+              font-size: 0.83rem;
+              color: var(--muted);
+              margin-bottom: 0.9rem;
+            "
+          >
+            Đăng xuất khỏi tài khoản hoặc xóa dữ liệu học cục bộ.
+          </p>
+          <div style="display: flex; gap: 0.65rem; flex-wrap: wrap">
+            <button class="btn-danger-ol" onclick="logout()">
+              <i class="fa fa-sign-out-alt me-1"></i>Đăng Xuất
+            </button>
+            <button class="btn-danger-ol" onclick="clearProgress()">
+              <i class="fa fa-trash me-1"></i>Xóa Tiến Độ Cục Bộ
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- FIX N26: JS tách ra file riêng -->
+    <script src="../js/helpers.js"></script>
+    <script src="../js/profile.js"></script>
+  </body>
+</html>

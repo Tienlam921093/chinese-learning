@@ -1,0 +1,20 @@
+/*
+  OAUTH CALLBACK — Styles
+  FIX N25: Tách từ inline <style> trong oauth-callback.html
+*/
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Outfit', sans-serif;
+  min-height: 100vh;
+  background: linear-gradient(160deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%);
+  display: flex; align-items: center; justify-content: center;
+}
+.box { text-align: center; color: #fff; padding: 2rem; }
+.logo { font-family: 'Noto Serif SC', serif; font-size: 3.5rem; font-weight: 900; color: #dc2626; display: block; margin-bottom: 1.5rem; }
+.spinner { width: 48px; height: 48px; border: 4px solid rgba(255,255,255,.15); border-top-color: #dc2626; border-radius: 50%; animation: spin .7s linear infinite; margin: 0 auto 1.5rem; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.msg { font-size: 1.05rem; font-weight: 600; margin-bottom: .5rem; }
+.sub { font-size: .85rem; color: rgba(255,255,255,.5); }
+.error-box { background: rgba(220,38,38,.15); border: 1px solid rgba(220,38,38,.3); border-radius: 12px; padding: 1.25rem 1.5rem; margin-top: 1.5rem; color: #fca5a5; font-size: .88rem; display: none; max-width: 360px; }
+.btn-back { display: inline-block; margin-top: 1rem; background: #dc2626; color: #fff; border: none; border-radius: 9px; padding: .55rem 1.4rem; font-family: 'Outfit', sans-serif; font-size: .88rem; font-weight: 600; cursor: pointer; text-decoration: none; }

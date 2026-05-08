@@ -1,0 +1,121 @@
+# ══════════════════════════════════════════════════════════════
+#  HánYǔ CI Pipeline — GitHub Actions
+#  Tự động chạy khi push hoặc pull request vào main/develop
+# ══════════════════════════════════════════════════════════════
+
+name: CI — Lint, Test & Build
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+jobs:
+
+  # ────────────────────────────────────────────
+  #  Job 1: Lint + Test (không cần DB)
+  # ────────────────────────────────────────────
+  lint-and-test:
+    name: 🔍 Lint & Test
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./backend
+
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 📦 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: backend/package-lock.json
+
+      - name: 📦 Install dependencies
+        run: npm ci
+
+      - name: 🔍 ESLint
+        run: npx eslint . --max-warnings 20
+        continue-on-error: false
+
+      - name: 🧪 Run tests
+        run: npm test
+
+      - name: 📊 Check for unused dependencies
+        run: npx depcheck --ignores="dumb-init" || true
+
+  # ────────────────────────────────────────────
+  #  Job 2: Docker Build (kiểm tra Dockerfile)
+  # ────────────────────────────────────────────
+  docker-build:
+    name: 🐳 Docker Build
+    runs-on: ubuntu-latest
+    needs: lint-and-test
+
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🐳 Build backend image
+        run: docker build -t hanyu-backend:ci ./backend
+
+      - name: 🐳 Build full stack (compose)
+        run: |
+          # Tạo dummy secrets cho CI
+          mkdir -p secrets
+          echo "MSSQL_SA_PASSWORD=REDACTED_CI_PASSWORD" > secrets/sqlserver.env
+          cat > secrets/backend.env << 'EOF'
+          DB_USER=sa
+          DB_PASSWORD=REDACTED_CI_PASSWORD
+          JWT_SECRET=ci_test_jwt_secret_64chars_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+          JWT_REFRESH_SECRET=ci_test_refresh_secret_64chars_bbbbbbbbbbbbbbbbbbbbbbbbb
+          JWT_EXPIRES=15m
+          JWT_EXPIRES_SECONDS=900
+          SESSION_SECRET=ci_test_session_secret
+          EOF
+          
+          docker compose -f docker-compose.prod.yml build
+
+  # ────────────────────────────────────────────
+  #  Job 3: Security Audit
+  # ────────────────────────────────────────────
+  security:
+    name: 🔒 Security Audit
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./backend
+
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 📦 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: backend/package-lock.json
+
+      - name: 📦 Install dependencies
+        run: npm ci
+
+      - name: 🔒 npm audit
+        run: npm audit --omit=dev || true
+
+      - name: 🔍 Check for hardcoded secrets
+        run: |
+          echo "Checking for hardcoded secrets..."
+          # Tìm patterns nguy hiểm (API keys, passwords hardcode)
+          if grep -rn "sk-[a-zA-Z0-9]\{20,\}" --include="*.js" .; then
+            echo "⚠️ WARNING: Possible API key found in source code!"
+            exit 1
+          fi
+          if grep -rn "password.*=.*['\"][^'\"]\{6,\}['\"]" --include="*.js" . | grep -v "node_modules" | grep -v ".test.js" | grep -v "OAUTH_NO_PASSWORD"; then
+            echo "⚠️ WARNING: Possible hardcoded password found!"
+            # Don't fail — just warn
+          fi
+          echo "✅ No critical secrets found in source code"

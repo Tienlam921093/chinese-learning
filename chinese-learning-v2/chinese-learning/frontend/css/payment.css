@@ -1,0 +1,51 @@
+/*
+  PAYMENT PAGE — Styles
+  FIX N25: Tách từ inline <style> trong payment.html
+*/
+
+:root { --red: #c0392b; --dark: #0f172a; --card: #1e293b; }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--dark); color: #fff; font-family: 'Segoe UI', sans-serif; min-height: 100vh; display: flex; flex-direction: column; }
+
+.topbar { background: #1e293b; padding: 14px 32px; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid #334155; }
+.topbar .logo { font-size: 1.6rem; color: var(--red); font-weight: 900; }
+.topbar .brand { font-size: 1.1rem; font-weight: 700; }
+.topbar .back { margin-left: auto; color: #94a3b8; text-decoration: none; font-size: .9rem; }
+.topbar .back:hover { color: #fff; }
+
+main { flex: 1; display: flex; align-items: center; justify-content: center; padding: 40px 16px; }
+.pay-wrap { width: 100%; max-width: 520px; }
+
+.plan-card { background: #1e293b; border: 1px solid #334155; border-radius: 16px; padding: 24px; margin-bottom: 24px; }
+.plan-badge { display: inline-block; padding: 3px 12px; border-radius: 20px; font-size: .78rem; font-weight: 700; margin-bottom: 8px; }
+.badge-pro { background: #1d4ed8; }
+.badge-premium { background: #7c3aed; }
+.plan-price { font-size: 2rem; font-weight: 800; color: var(--red); }
+.plan-price span { font-size: 1rem; font-weight: 400; color: #94a3b8; }
+.plan-features { list-style: none; margin-top: 12px; }
+.plan-features li { padding: 5px 0; font-size: .9rem; color: #cbd5e1; }
+.plan-features li::before { content: '✓ '; color: #22c55e; }
+
+.method-title { font-size: 1rem; font-weight: 600; margin-bottom: 14px; color: #e2e8f0; }
+.methods { display: flex; gap: 12px; margin-bottom: 24px; }
+.method-btn { flex: 1; background: #1e293b; border: 2px solid #334155; border-radius: 12px; padding: 14px 10px; cursor: pointer; text-align: center; transition: .2s; }
+.method-btn:hover { border-color: #475569; }
+.method-btn.active { border-color: var(--red); background: #2d1515; }
+.method-btn img { height: 32px; object-fit: contain; }
+.method-btn p { font-size: .78rem; margin-top: 6px; color: #94a3b8; }
+
+.btn-pay { width: 100%; padding: 15px; background: var(--red); color: #fff; border: none; border-radius: 12px; font-size: 1.1rem; font-weight: 700; cursor: pointer; transition: .2s; display: flex; align-items: center; justify-content: center; gap: 10px; }
+.btn-pay:hover { background: #a93226; }
+.btn-pay:disabled { opacity: .6; cursor: not-allowed; }
+
+.status-screen { text-align: center; padding: 48px 0; }
+.status-icon { font-size: 4rem; margin-bottom: 16px; }
+.status-screen h2 { font-size: 1.6rem; font-weight: 700; margin-bottom: 8px; }
+.status-screen p { color: #94a3b8; margin-bottom: 24px; }
+.btn-home { display: inline-block; padding: 12px 28px; background: var(--red); color: #fff; border-radius: 10px; text-decoration: none; font-weight: 600; }
+
+.secure-note { text-align: center; margin-top: 16px; font-size: .78rem; color: #475569; }
+.secure-note i { margin-right: 4px; }
+
+.spinner { display: inline-block; width: 22px; height: 22px; border: 3px solid rgba(255,255,255,.3); border-top-color: #fff; border-radius: 50%; animation: spin .7s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }

@@ -1,0 +1,67 @@
+# ══════════════════════════════════════════════════
+#  HANYU — .gitignore
+#  QUAN TRỌNG: Không xóa các dòng trong phần SECRETS
+# ══════════════════════════════════════════════════
+
+# ── SECRETS — KHÔNG BAO GIỜ COMMIT ──
+.env
+.env.local
+.env.production
+.env.staging
+.env.*.local
+secrets/*.env
+secrets/*.key
+secrets/*.pem
+secrets/*.txt
+!secrets/.gitkeep
+!secrets/*.example
+
+# ── DEPENDENCIES ──
+node_modules/
+*/node_modules/
+.npm/
+
+# ── DOCKER VOLUMES ──
+sqlserver_data/
+postgres_data/
+
+# ── BUILD OUTPUT ──
+dist/
+build/
+.next/
+
+# ── LOGS ──
+*.log
+logs/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# ── OS ──
+.DS_Store
+.DS_Store?
+._*
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# ── EDITOR ──
+.vscode/settings.json
+.idea/
+*.swp
+*.swo
+*~
+
+# ── CERTIFICATE / KEYS ──
+*.pem
+*.key
+*.cert
+*.p12
+*.pfx
+
+# ── MISC ──
+.nyc_output/
+coverage/
+.cache/
+tmp/
+temp/

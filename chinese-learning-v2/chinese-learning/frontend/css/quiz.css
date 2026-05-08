@@ -1,0 +1,36 @@
+/*
+  QUIZ PAGE — Extra styles beyond style.css
+  FIX N25: Tách từ inline <style> trong quiz.html
+*/
+
+.quiz-timer {
+  font-size: 2rem;
+  font-weight: 900;
+  color: var(--red);
+  font-variant-numeric: tabular-nums;
+}
+.quiz-timer.warning {
+  color: #ff9800;
+  animation: pulse 0.5s ease infinite alternate;
+}
+@keyframes pulse { to { opacity: 0.5; } }
+
+.result-bar {
+  height: 16px;
+  border-radius: 8px;
+  transition: width 1s ease;
+}
+
+.option-letter {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  flex-shrink: 0;
+  background: #f0f0f0;
+}
+.quiz-option.correct .option-letter { background: #4caf50; color: #fff; }
+.quiz-option.wrong .option-letter { background: #e63946; color: #fff; }

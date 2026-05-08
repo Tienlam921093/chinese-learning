@@ -1,0 +1,20 @@
+﻿    .flashcard-scene { width: 100%; max-width: 480px; height: 320px; perspective: 1000px; cursor: pointer; margin: 0 auto; }
+    .flashcard { width:100%; height:100%; position:relative; transform-style:preserve-3d; transition:transform 0.6s cubic-bezier(.4,0,.2,1); }
+    .flashcard.flipped { transform:rotateY(180deg); }
+    .card-front, .card-back {
+      position:absolute; inset:0; backface-visibility:hidden;
+      border-radius:20px; display:flex; flex-direction:column;
+      align-items:center; justify-content:center; padding:2rem;
+      box-shadow:0 12px 40px rgba(0,0,0,0.15);
+    }
+    .card-front { background:linear-gradient(135deg,#1a1a2e,#0f3460); color:#fff; }
+    .card-back  { background:#fff; transform:rotateY(180deg); border:3px solid #f0e8d8; }
+    .big-hanzi { font-family:'Noto Serif SC',serif; font-size:5rem; font-weight:900; line-height:1; text-shadow:0 4px 24px rgba(0,0,0,0.3); }
+    .pinyin-text { font-size:1.4rem; font-style:italic; color:var(--gold); margin-top:0.5rem; }
+    .meaning-text { font-family:'Noto Serif SC',serif; font-size:1.6rem; font-weight:700; color:var(--ink); }
+    .example-text { font-size:0.9rem; color:#555; text-align:center; margin-top:0.75rem; }
+    .tone-bar { width:48px; height:5px; border-radius:3px; margin:0.5rem auto; }
+    .rating-btn { border-radius:999px; font-weight:600; font-size:0.85rem; padding:0.5rem 1.2rem; }
+    .progress-ring { font-size:0.85rem; }
+    .study-mode-pill { display:inline-flex; align-items:center; gap:.35rem; border-radius:999px; padding:.25rem .65rem; font-size:.75rem; font-weight:700; background:#fff7ed; color:#c2410c; border:1px solid #fed7aa; }
+    .empty-vocab { border:1px dashed #cbd5e1; border-radius:14px; padding:2rem; color:#64748b; background:#fff; }

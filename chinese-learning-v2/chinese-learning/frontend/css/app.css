@@ -1,0 +1,61 @@
+/*
+  APP PAGES — Shared sidebar + layout CSS
+  Used by: lessons, vocabulary, chatbot, study, profile, leaderboard, quiz
+  FIX N25: Tách từ inline <style> chung giữa các trang app
+*/
+
+:root {
+  --red: #dc2626;
+  --gold: #f59e0b;
+  --ink: #0f172a;
+  --muted: #64748b;
+  --border: #e2e8f0;
+  --bg: #f8fafc;
+  --font-d: 'Noto Serif SC', serif;
+  --font-b: 'Outfit', sans-serif;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+body { font-family: var(--font-b); margin: 0; background: var(--bg); color: var(--ink); overflow-x: hidden; }
+.app { display: flex; min-height: 100vh; }
+
+/* ── SIDEBAR ── */
+.sidebar { width: 240px; background: var(--ink); display: flex; flex-direction: column; flex-shrink: 0; position: sticky; top: 0; height: 100vh; overflow-y: auto; }
+.sb-top { padding: 1.25rem 1rem 1rem; border-bottom: 1px solid rgba(255,255,255,.07); }
+.sb-logo { display: flex; align-items: center; gap: .5rem; text-decoration: none; margin-bottom: 1rem; }
+.sb-logo-c { font-family: var(--font-d); font-size: 1.7rem; font-weight: 900; color: var(--red); line-height: 1; }
+.sb-logo-t { font-family: var(--font-d); font-size: 1rem; font-weight: 700; color: #fff; }
+.user-card { background: rgba(255,255,255,.07); border-radius: 10px; padding: .85rem; }
+.user-ava { width: 36px; height: 36px; border-radius: 50%; background: var(--red); display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 700; font-size: .9rem; flex-shrink: 0; }
+.user-name { color: #fff; font-weight: 600; font-size: .88rem; }
+.user-sub { color: rgba(255,255,255,.5); font-size: .75rem; }
+.xp-bar { height: 3px; background: rgba(255,255,255,.15); border-radius: 2px; margin-top: .5rem; overflow: hidden; }
+.xp-bar-fill { height: 100%; background: var(--gold); border-radius: 2px; transition: width .5s ease; }
+.sb-nav { padding: .75rem .75rem; flex: 1; }
+.sb-link { display: flex; align-items: center; gap: .6rem; padding: .6rem .75rem; border-radius: 9px; color: rgba(255,255,255,.65); text-decoration: none; font-size: .85rem; font-weight: 500; margin-bottom: .2rem; transition: all .2s; }
+.sb-link:hover { background: rgba(255,255,255,.08); color: #fff; }
+.sb-link.active { background: rgba(220,38,38,.2); color: #fff; border-left: 3px solid var(--red); }
+.sb-link i { width: 16px; text-align: center; font-size: .8rem; }
+.sb-divider { border-color: rgba(255,255,255,.08); margin: .5rem 0; }
+
+/* ── MAIN CONTENT ── */
+.main { flex: 1; padding: 1.75rem; overflow-x: hidden; min-width: 0; }
+.topbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; flex-wrap: wrap; gap: .75rem; }
+.page-title { font-family: var(--font-d); font-size: 1.4rem; font-weight: 700; color: var(--ink); margin: 0; }
+.page-date { color: var(--muted); font-size: .8rem; margin-top: .15rem; }
+
+/* ── BADGES ── */
+.badge-pill { display: inline-flex; align-items: center; gap: .35rem; border-radius: 999px; padding: .35rem .85rem; font-size: .8rem; font-weight: 700; }
+.badge-streak { background: rgba(245,158,11,.12); color: #b45309; border: 1px solid rgba(245,158,11,.25); }
+.badge-xp { background: rgba(37,99,235,.1); color: #1d4ed8; border: 1px solid rgba(37,99,235,.2); }
+
+/* ── SKELETON LOADING ── */
+.sk { background: linear-gradient(90deg,#f1f5f9 25%,#e2e8f0 50%,#f1f5f9 75%); background-size: 200% 100%; animation: sk 1.3s infinite; border-radius: 8px; }
+@keyframes sk { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+.empty-state { text-align: center; padding: 3rem 1rem; color: var(--muted); }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 768px) {
+  .sidebar { display: none; }
+  .main { padding: 1rem; }
+}
