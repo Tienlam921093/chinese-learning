@@ -17,6 +17,10 @@ const {
 
 const app = express();
 
+// App chạy sau nginx reverse proxy (docker compose) nên cần trust proxy
+// để req.ip và express-rate-limit xử lý đúng X-Forwarded-For.
+app.set("trust proxy", 1);
+
 // ── Helmet — HTTP Security Headers ──
 app.use(
   helmet({
@@ -92,8 +96,12 @@ app.use(
     cookie: {
       secure: process.env.NODE_ENV === "production",
       httpOnly: true,
-      sameSite: "strict",
-      maxAge: 10 * 60 * 1000, // 10 phút (giảm từ 24h — session chỉ cho OAuth)
+      // FIX: Phải dùng "lax" (không phải "strict") để session cookie
+      // được gửi khi Google/Facebook redirect về callback URL.
+      // "strict" chặn cookie trong cross-site redirect → Passport mất session
+      // → deserializeUser thất bại → OAuth flow bị lỗi.
+      sameSite: "lax",
+      maxAge: 10 * 60 * 1000, // 10 phút — session chỉ dùng cho OAuth flow
     },
   }),
 );
@@ -160,8 +168,62 @@ app.get("/api/health", (req, res) =>
 app.use(notFoundHandler);
 app.use(globalErrorHandler);
 
-const { getPool } = require("./config/db");
+const { getPool, query, sql } = require("./config/db");
 const { RefreshTokenModel } = require("./models/refreshToken.model");
+
+async function ensureSchema() {
+  const maxAttempts = 10;
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    try {
+      await query(
+        `IF COL_LENGTH('dbo.Users', 'oauth_display_name') IS NULL
+         BEGIN
+           ALTER TABLE dbo.Users ADD oauth_display_name NVARCHAR(100) NULL;
+         END`,
+        {},
+      );
+      // FIX: KHÔNG xóa unique constraint trên email.
+      // Thay vào đó dùng filtered unique index: chỉ enforce unique
+      // cho password accounts (password_hash NOT NULL và không phải OAUTH_NO_PASSWORD).
+      // OAuth accounts được phép có email trùng với password account
+      // vì chúng được phân biệt bằng oauth_provider + oauth_provider_id.
+      await query(
+        `IF NOT EXISTS (
+           SELECT 1 FROM sys.indexes
+           WHERE name = 'UQ_Users_email_password' AND object_id = OBJECT_ID('dbo.Users')
+         )
+         BEGIN
+           CREATE UNIQUE INDEX UQ_Users_email_password
+           ON dbo.Users (email)
+           WHERE password_hash IS NOT NULL AND password_hash <> 'OAUTH_NO_PASSWORD';
+         END`,
+        {},
+      );
+      // Đảm bảo oauth_provider_id có index để findOrCreateOAuth nhanh
+      await query(
+        `IF NOT EXISTS (
+           SELECT 1 FROM sys.indexes
+           WHERE name = 'IX_Users_oauth' AND object_id = OBJECT_ID('dbo.Users')
+         )
+         BEGIN
+           CREATE INDEX IX_Users_oauth ON dbo.Users (oauth_provider, oauth_provider_id)
+           WHERE oauth_provider IS NOT NULL;
+         END`,
+        {},
+      );
+      console.log(
+        "[DB] Schema check complete for oauth_display_name + indexes",
+      );
+      return;
+    } catch (err) {
+      if (attempt === maxAttempts) {
+        console.warn("[DB] Schema check failed:", err.message);
+        return;
+      }
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+    }
+  }
+}
 
 // FIX L5: Dọn refresh tokens hết hạn mỗi 6 giờ
 setInterval(
@@ -177,9 +239,17 @@ setInterval(
 );
 
 const PORT = process.env.PORT || 5000;
-const server = app.listen(PORT, () =>
-  console.log(`[SERVER] ✅ HánYǔ API v2.1 chạy tại port ${PORT}`),
-);
+let server;
+
+(async () => {
+  await ensureSchema();
+  server = app.listen(PORT, () =>
+    console.log(`[SERVER] ✅ HánYǔ API v2.1 chạy tại port ${PORT}`),
+  );
+})().catch((err) => {
+  console.error("[SERVER] ❌ Failed to start:", err.message);
+  process.exit(1);
+});
 
 // FIX L4: Graceful shutdown — đóng DB pool và HTTP server khi Docker stop
 function gracefulShutdown(signal) {

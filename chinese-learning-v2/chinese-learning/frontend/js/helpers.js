@@ -55,8 +55,8 @@ function clearAccessToken() {
 function getUser() {
   try {
     return JSON.parse(
-      localStorage.getItem("hanyuUser") ||
-        sessionStorage.getItem("hanyuUser") ||
+      sessionStorage.getItem("hanyuUser") ||
+        localStorage.getItem("hanyuUser") ||
         "{}",
     );
   } catch {
@@ -107,7 +107,7 @@ async function refreshAccessToken() {
       });
       if (testRes.ok) {
         // Token hiện tại vẫn còn hợp lệ, không cần refresh
-        return;
+        return currentToken;
       }
     } catch {
       // Token không hợp lệ hoặc hết hạn, tiếp tục refresh
@@ -123,8 +123,9 @@ async function refreshAccessToken() {
     })
       .then(async (res) => {
         const data = await res.json();
-        if (!res.ok || !data.token) throw new Error("refresh failed");
+        if (res.status === 401 || !res.ok || !data.token) return null;
         setAccessToken(data.token);
+        return data.token;
       })
       .finally(() => {
         _refreshPromise = null;
@@ -135,7 +136,7 @@ async function refreshAccessToken() {
 
 async function restoreAuthSession() {
   const cachedUser = getUser();
-  if (cachedUser?.id) return cachedUser;
+  if (cachedUser?.id && getToken()) return cachedUser;
 
   try {
     const refreshRes = await fetch(`${HANYU_API}/auth/refresh`, {
@@ -155,8 +156,9 @@ async function restoreAuthSession() {
     const { user } = await meRes.json();
     if (!user?.id) return null;
 
-    const store = localStorage;
-    store.setItem("hanyuUser", JSON.stringify(user));
+    const serializedUser = JSON.stringify(user);
+    sessionStorage.setItem("hanyuUser", serializedUser);
+    localStorage.setItem("hanyuUser", serializedUser);
     setAccessToken(refreshData.token);
     return user;
   } catch {
@@ -192,12 +194,26 @@ async function ensureAuthSession(redirectTo = "login.html") {
     if (getToken()) return true;
     const user = await restoreAuthSession();
     if (user) return true;
-    await refreshAccessToken();
-    return true;
+    const token = await refreshAccessToken();
+    if (token) return true;
   } catch {
-    location.replace(redirectTo);
+    // If the backend is temporarily unavailable, keep the user on the page
+    // instead of forcing a logout redirect. A real auth failure still falls
+    // through to the redirect below once the backend is reachable.
+  }
+
+  try {
+    const healthRes = await fetch(`${HANYU_API}/health`, {
+      cache: "no-store",
+      credentials: "include",
+    });
+    if (!healthRes.ok) return false;
+  } catch {
     return false;
   }
+
+  location.replace(redirectTo);
+  return false;
 }
 
 /* ── Sidebar init (for pages with sidebar) ── */

@@ -1,6 +1,12 @@
 "use strict";
 // Auth utilities (getToken, getUser, getProgressKey, API, authFetch, logout) provided by helpers.js
-const saveUser = (u) => localStorage.setItem("hanyuUser", JSON.stringify(u));
+const USER_UPDATED_KEY = "hanyuUserUpdatedAt";
+const saveUser = (u) => {
+  const serialized = JSON.stringify(u);
+  localStorage.setItem("hanyuUser", serialized);
+  sessionStorage.setItem("hanyuUser", serialized);
+  localStorage.setItem(USER_UPDATED_KEY, String(Date.now()));
+};
 
 const LEVELS = [
   { name: "Người Mới Bắt Đầu", min: 0, max: 500 },
@@ -40,7 +46,7 @@ const ACHIEVEMENTS = [
   { icon: "📙", name: "HSK 4", desc: "Đạt HSK 4", ok: (u) => u.hsk_level >= 4 },
   {
     icon: "⭐",
-    name: "Thành Viên Pro",
+    name: null, // Set dynamically in render based on u.plan
     desc: "Nâng cấp gói",
     ok: (u) => u.plan && u.plan !== "free",
   },
@@ -62,21 +68,26 @@ async function initProfile() {
       month: "2-digit",
       year: "numeric",
     });
+
+  // Render ngay từ localStorage để UX nhanh
   let u = getUser();
-  // Đếm bài đã học từ localStorage
   const prog = JSON.parse(
     localStorage.getItem("hanyuProgress_" + (u.id || "guest")) || "{}",
   );
   u.completedLessons = (prog.completedLessonIds || []).length;
   render(u);
 
-  // Refresh từ API
+  // Fetch từ server — dùng server data làm source of truth
+  // KHÔNG merge với localStorage cũ để tránh hiển thị tên/data sai
+  // khi user vừa đổi tài khoản (đăng nhập account khác)
   try {
     const r = await authFetch(`${API}/auth/me`);
     if (r.ok) {
       const { user } = await r.json();
-      user.completedLessons = u.completedLessons;
-      saveUser({ ...u, ...user });
+      // Chỉ giữ lại completedLessons từ localStorage (server chưa track)
+      user.completedLessons = (prog.completedLessonIds || []).length;
+      // Lưu lại: server data ghi đè localStorage cũ
+      saveUser(user);
       render(user);
     }
   } catch {}
@@ -84,10 +95,18 @@ async function initProfile() {
 
 function render(u) {
   const init = (u.name || "?")[0].toUpperCase();
-  const canChangePassword = !u.oauth_provider;
+  const canChangePassword = u.auth_source !== "oauth";
   const passwordSection = document.getElementById("pwdSection");
   if (passwordSection) {
     passwordSection.style.display = canChangePassword ? "" : "none";
+  }
+  const emailFieldWrap = document.getElementById("emailFieldWrap");
+  if (emailFieldWrap) {
+    emailFieldWrap.style.display = canChangePassword ? "" : "none";
+  }
+  const heroEmailWrap = document.getElementById("heroEmailWrap");
+  if (heroEmailWrap) {
+    heroEmailWrap.style.display = canChangePassword ? "" : "none";
   }
   // Sidebar
   document.getElementById("uAva").textContent = init;
@@ -142,17 +161,26 @@ function render(u) {
   document.getElementById("lvFill").style.width = pct + "%";
   document.getElementById("lvPct").textContent = pct + "%";
   // Achievements
-  document.getElementById("badgesGrid").innerHTML = ACHIEVEMENTS.map(
-    (a) => `
+  document.getElementById("badgesGrid").innerHTML = ACHIEVEMENTS.map((a) => {
+    // Dynamically set paid-plan achievement name based on actual plan
+    let name = a.name;
+    if (!name && a.ok(u)) {
+      const planLower = (u.plan || "free").toLowerCase();
+      name = planLower === "premium" ? "👑 Premium" : "⭐ Pro";
+    } else if (!name) {
+      name = "Thành Viên Trả Phí";
+    }
+    return `
     <div class="bdg ${a.ok(u) ? "" : "locked"}">
       <div class="bdg-icon">${a.icon}</div>
-      <div class="bdg-name">${a.name}</div>
+      <div class="bdg-name">${name}</div>
       <div class="bdg-desc">${a.desc}</div>
-    </div>`,
-  ).join("");
+    </div>`;
+  }).join("");
   // Form
   document.getElementById("editName").value = u.name || "";
-  document.getElementById("editEmail").value = u.email || "";
+  const editEmail = document.getElementById("editEmail");
+  if (editEmail) editEmail.value = u.email || "";
 }
 
 async function saveProfile() {
@@ -166,11 +194,30 @@ async function saveProfile() {
   btn.disabled = true;
   btn.innerHTML = '<i class="fa fa-spinner fa-spin me-1"></i>Đang lưu...';
   try {
+    // Gọi API để cập nhật tên trong DB → leaderboard sẽ phản ánh ngay
+    const r = await authFetch(`${API}/auth/me`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name }),
+    });
+    const d = await r.json();
+    if (r.ok) {
+      // Cập nhật localStorage với data mới từ server
+      const u = getUser();
+      const updated = { ...u, ...d.user, name };
+      saveUser(updated);
+      render(updated);
+      showMsg(msg, "✅ Đã lưu!", true);
+    } else {
+      showMsg(msg, "❌ " + (d.message || "Lỗi lưu tên"), false);
+    }
+  } catch {
+    // Fallback: chỉ lưu local nếu mất mạng
     const u = getUser();
     u.name = name;
     saveUser(u);
     render(u);
-    showMsg(msg, "✅ Đã lưu!", true);
+    showMsg(msg, "✅ Đã lưu (offline)!", true);
   } finally {
     btn.disabled = false;
     btn.innerHTML = '<i class="fa fa-check me-1"></i>Lưu Thay Đổi';
@@ -179,7 +226,7 @@ async function saveProfile() {
 
 async function changePwd() {
   const u = getUser();
-  if (u.oauth_provider) {
+  if (u.auth_source === "oauth") {
     showMsg(
       document.getElementById("pwdMsg"),
       "⚠️ Tài khoản đăng nhập qua Google/Facebook không hỗ trợ đổi mật khẩu tại đây.",

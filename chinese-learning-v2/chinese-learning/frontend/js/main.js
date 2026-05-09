@@ -75,8 +75,7 @@ const api = {
           credentials: "include",
         });
         const data = await res.json();
-        if (!res.ok || !data.token)
-          throw new Error(data.message || "Refresh token failed");
+        if (res.status === 401 || !res.ok || !data.token) return null;
         api.setToken(data.token);
         return data.token;
       })().finally(() => {
@@ -107,7 +106,13 @@ const api = {
 
         if (shouldTryRefresh) {
           try {
-            await api.refreshAccessToken();
+            const refreshedToken = await api.refreshAccessToken();
+            if (!refreshedToken) {
+              api.removeToken();
+              throw new Error(
+                "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.",
+              );
+            }
             return api.request(method, endpoint, body, true);
           } catch {
             api.removeToken();
@@ -172,8 +177,8 @@ function showToast(message, type = "success") {
 function getCurrentUser() {
   try {
     return JSON.parse(
-      localStorage.getItem("hanyuUser") ||
-        sessionStorage.getItem("hanyuUser") ||
+      sessionStorage.getItem("hanyuUser") ||
+        localStorage.getItem("hanyuUser") ||
         "null",
     );
   } catch {

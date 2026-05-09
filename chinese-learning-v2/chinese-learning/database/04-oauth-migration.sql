@@ -30,4 +30,20 @@ BEGIN
 END
 GO
 
+DECLARE @emailConstraint NVARCHAR(128);
+SELECT TOP 1 @emailConstraint = kc.name
+FROM sys.key_constraints kc
+INNER JOIN sys.tables t ON t.object_id = kc.parent_object_id
+INNER JOIN sys.index_columns ic ON ic.object_id = t.object_id AND ic.index_id = kc.unique_index_id
+INNER JOIN sys.columns c ON c.object_id = t.object_id AND c.column_id = ic.column_id
+WHERE t.object_id = OBJECT_ID('Users')
+    AND c.name = 'email'
+    AND kc.[type] = 'UQ';
+IF @emailConstraint IS NOT NULL
+BEGIN
+        EXEC('ALTER TABLE Users DROP CONSTRAINT ' + QUOTENAME(@emailConstraint));
+        PRINT '✅ Dropped unique constraint on Users.email';
+END
+GO
+
 PRINT '🎉 OAuth migration completed.';

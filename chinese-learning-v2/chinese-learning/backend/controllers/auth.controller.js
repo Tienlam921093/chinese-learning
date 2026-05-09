@@ -43,6 +43,37 @@ function getIP(req) {
   );
 }
 
+function clearLegacyAuthCookies(res) {
+  res.clearCookie("refreshToken", { path: "/api/auth" });
+  res.clearCookie("accessToken", { path: "/api" });
+}
+
+// ── Helper: chuẩn hóa user object trả về cho frontend ──
+// Đảm bảo luôn trả đúng tên hiển thị tùy loại tài khoản:
+// - OAuth: dùng oauth_display_name nếu có (tên user tự đặt), fallback về name từ provider
+// - Password: dùng name trong DB
+function buildSessionUser(user, authSource = "password", extra = {}) {
+  const isOAuth = authSource === "oauth" || !!user.oauth_provider;
+  const displayName = isOAuth
+    ? user.oauth_display_name || user.name || ""
+    : user.name || "";
+
+  return {
+    id: user.id,
+    name: displayName,
+    email: user.email,
+    role: user.role || "student",
+    oauth_provider: user.oauth_provider || null,
+    auth_source: authSource,
+    hsk_level: user.hsk_level || 1,
+    xp: user.xp || 0,
+    streak: user.streak || 0,
+    plan: user.plan || "free",
+    plan_expiry: user.plan_expiry || null,
+    ...extra,
+  };
+}
+
 const AuthController = {
   // ── Register ──
   async register(req, res) {
@@ -91,6 +122,9 @@ const AuthController = {
         ipAddress: getIP(req),
       });
 
+      // Dọn cookie legacy path để tránh 2 session cùng tồn tại
+      clearLegacyAuthCookies(res);
+
       // Gửi refresh token qua httpOnly cookie
       res.cookie("refreshToken", refreshToken, REFRESH_COOKIE_OPTS);
       res.cookie("accessToken", accessToken, ACCESS_COOKIE_OPTS);
@@ -105,6 +139,7 @@ const AuthController = {
           email: newUser.email,
           role: newUser.role,
           oauth_provider: null,
+          auth_source: "password",
           plan: "free",
         },
       });
@@ -132,8 +167,10 @@ const AuthController = {
           .json({ message: "Email hoặc mật khẩu không đúng" });
 
       await UserModel.updateLastLogin(user.id);
-      const { accessToken, refreshToken, expiresIn } =
-        TokenService.generate(user);
+      const { accessToken, refreshToken, expiresIn } = TokenService.generate({
+        ...user,
+        auth_source: "password",
+      });
 
       await RefreshTokenModel.save({
         token: refreshToken,
@@ -143,6 +180,7 @@ const AuthController = {
         ipAddress: getIP(req),
       });
 
+      clearLegacyAuthCookies(res);
       res.cookie("refreshToken", refreshToken, REFRESH_COOKIE_OPTS);
       res.cookie("accessToken", accessToken, ACCESS_COOKIE_OPTS);
 
@@ -156,6 +194,7 @@ const AuthController = {
           email: user.email,
           role: user.role,
           oauth_provider: user.oauth_provider || null,
+          auth_source: "password",
           hsk_level: user.hsk_level,
           xp: user.xp,
           streak: user.streak,
@@ -187,6 +226,7 @@ const AuthController = {
       } catch {
         res.clearCookie("refreshToken", { path: "/" });
         res.clearCookie("accessToken", { path: "/" });
+        clearLegacyAuthCookies(res);
         return res
           .status(401)
           .json({ message: "Refresh token không hợp lệ hoặc đã hết hạn" });
@@ -196,13 +236,14 @@ const AuthController = {
       const user = await UserModel.findById(decoded.id);
       if (!user)
         return res.status(401).json({ message: "Tài khoản không tồn tại" });
+      const sessionAuthSource = decoded.auth_source || "password";
 
       // 3. TOKEN ROTATION (atomic): consume token cũ + tạo token mới trong cùng transaction
       const {
         accessToken,
         refreshToken: newRefreshToken,
         expiresIn,
-      } = TokenService.generate(user);
+      } = TokenService.generate({ ...user, auth_source: sessionAuthSource });
       const rotated = await RefreshTokenModel.consumeAndRotate({
         oldToken: token,
         userId: user.id,
@@ -215,6 +256,7 @@ const AuthController = {
         // Token đã bị dùng/revoke/hết hạn hoặc không thuộc user này.
         res.clearCookie("refreshToken", { path: "/" });
         res.clearCookie("accessToken", { path: "/" });
+        clearLegacyAuthCookies(res);
         return res.status(401).json({
           message: "Phiên đăng nhập không hợp lệ. Vui lòng đăng nhập lại.",
           code: "REFRESH_TOKEN_INVALID",
@@ -222,9 +264,14 @@ const AuthController = {
         });
       }
 
+      clearLegacyAuthCookies(res);
       res.cookie("refreshToken", newRefreshToken, REFRESH_COOKIE_OPTS);
       res.cookie("accessToken", accessToken, ACCESS_COOKIE_OPTS);
-      res.json({ token: accessToken, expiresIn });
+      res.json({
+        token: accessToken,
+        expiresIn,
+        auth_source: sessionAuthSource,
+      });
     } catch (err) {
       console.error("[AUTH] Refresh:", err.message);
       res.status(500).json({ message: "Lỗi server" });
@@ -238,6 +285,7 @@ const AuthController = {
       if (token) await RefreshTokenModel.revoke(token);
       res.clearCookie("refreshToken", { path: "/" });
       res.clearCookie("accessToken", { path: "/" });
+      clearLegacyAuthCookies(res);
       res.json({ message: "Đăng xuất thành công" });
     } catch {
       res.json({ message: "Đăng xuất thành công" }); // Luôn trả success cho logout
@@ -255,6 +303,7 @@ const AuthController = {
       );
       res.clearCookie("refreshToken", { path: "/" });
       res.clearCookie("accessToken", { path: "/" });
+      clearLegacyAuthCookies(res);
       res.json({ message: "Đã đăng xuất khỏi tất cả thiết bị" });
     } catch (err) {
       res.status(500).json({ message: "Lỗi server" });
@@ -267,7 +316,12 @@ const AuthController = {
       const user = await UserModel.findById(req.user.id);
       if (!user)
         return res.status(404).json({ message: "Người dùng không tồn tại" });
-      res.json({ user });
+      res.json({
+        user: buildSessionUser(
+          user,
+          req.user.auth_source || (user.oauth_provider ? "oauth" : "password"),
+        ),
+      });
     } catch {
       res.status(500).json({ message: "Lỗi server" });
     }
@@ -322,6 +376,7 @@ const AuthController = {
 
       res.clearCookie("refreshToken", { path: "/" });
       res.clearCookie("accessToken", { path: "/" });
+      clearLegacyAuthCookies(res);
       res.json({
         message: "Đổi mật khẩu thành công! Vui lòng đăng nhập lại.",
         should_logout: true, // Frontend tự logout và redirect về login
@@ -427,8 +482,10 @@ const AuthController = {
       if (!user) {
         return res.status(404).json({ message: "Không tìm thấy người dùng" });
       }
-      const { accessToken, refreshToken, expiresIn } =
-        TokenService.generate(user);
+      const { accessToken, refreshToken, expiresIn } = TokenService.generate({
+        ...user,
+        auth_source: "password",
+      });
       await RefreshTokenModel.save({
         token: refreshToken,
         userId: user.id,
@@ -437,6 +494,7 @@ const AuthController = {
         ipAddress: getIP(req),
       });
 
+      clearLegacyAuthCookies(res);
       res.cookie("refreshToken", refreshToken, REFRESH_COOKIE_OPTS);
       res.cookie("accessToken", accessToken, ACCESS_COOKIE_OPTS);
 
@@ -444,17 +502,43 @@ const AuthController = {
         message: "Đặt lại mật khẩu thành công! Đang đăng nhập tự động...",
         token: accessToken,
         expiresIn,
-        user: {
-          id: user.id,
-          name: user.name,
-          email: user.email,
-          role: user.role,
+        user: buildSessionUser(user, "password", {
           plan: user.plan || "free",
           plan_expiry: user.plan_expiry || null,
-        },
+        }),
       });
     } catch (err) {
       console.error("[RESET-PWD]", err.message);
+      res.status(500).json({ message: "Lỗi server" });
+    }
+  },
+
+  // ── Update Profile (tên) ──
+  async updateProfile(req, res) {
+    try {
+      const { name } = req.body;
+      if (!name || String(name).trim().length < 2)
+        return res.status(400).json({ message: "Tên phải có ít nhất 2 ký tự" });
+      if (String(name).trim().length > 100)
+        return res
+          .status(400)
+          .json({ message: "Tên quá dài (tối đa 100 ký tự)" });
+
+      const trimmed = String(name).trim();
+      if ((req.user.auth_source || "password") === "oauth") {
+        await UserModel.updateOAuthDisplayName(req.user.id, trimmed);
+      } else {
+        await UserModel.updateName(req.user.id, trimmed);
+      }
+
+      // Trả về user mới nhất để frontend cập nhật localStorage
+      const updated = await UserModel.findById(req.user.id);
+      res.json({
+        message: "Đã cập nhật tên",
+        user: buildSessionUser(updated, req.user.auth_source || "password"),
+      });
+    } catch (err) {
+      console.error("[UPDATE-PROFILE]", err.message);
       res.status(500).json({ message: "Lỗi server" });
     }
   },

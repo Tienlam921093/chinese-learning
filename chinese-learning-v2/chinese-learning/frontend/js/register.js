@@ -30,9 +30,13 @@ function setLoading(on) {
 
 /* ── Save session & go to lessons ── */
 function saveAndGo(token, user) {
+  const sessionUser = {
+    ...user,
+    auth_source: user?.auth_source || "password",
+  };
   localStorage.removeItem("hanyuUser");
   sessionStorage.removeItem("hanyuUser");
-  sessionStorage.setItem("hanyuUser", JSON.stringify(user));
+  sessionStorage.setItem("hanyuUser", JSON.stringify(sessionUser));
   if (typeof window.setAccessToken === "function") {
     window.setAccessToken(token);
   }

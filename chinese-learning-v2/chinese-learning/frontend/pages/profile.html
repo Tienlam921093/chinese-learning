@@ -108,7 +108,9 @@
           <div class="hero-ava" id="heroAva" style="background: #dc2626">?</div>
           <div>
             <div class="hero-name" id="heroName">–</div>
-            <div class="hero-email" id="heroEmail">–</div>
+            <div class="hero-email" id="heroEmailWrap">
+              <span id="heroEmail">–</span>
+            </div>
             <span class="plan-tag plan-free" id="planTag">👤 Free</span>
           </div>
           <div class="hero-right">
@@ -207,7 +209,7 @@
                 placeholder="Tên của bạn"
               />
             </div>
-            <div class="col-md-6">
+            <div class="col-md-6" id="emailFieldWrap">
               <label class="form-label">Email</label>
               <input
                 type="email"

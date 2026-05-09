@@ -9,6 +9,7 @@ function saveSession(token, user) {
     ...user,
     plan: user?.plan || "free",
     plan_expiry: user?.plan_expiry || null,
+    auth_source: user?.auth_source || "password",
   };
   localStorage.removeItem("hanyuUser");
   sessionStorage.removeItem("hanyuUser");

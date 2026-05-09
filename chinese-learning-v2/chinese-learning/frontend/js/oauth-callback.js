@@ -53,7 +53,13 @@
 
     localStorage.removeItem("hanyuUser");
     sessionStorage.removeItem("hanyuUser");
-    sessionStorage.setItem("hanyuUser", JSON.stringify(data.user));
+    sessionStorage.setItem(
+      "hanyuUser",
+      JSON.stringify({
+        ...data.user,
+        auth_source: data.user?.auth_source || "oauth",
+      }),
+    );
     if (typeof window.setAccessToken === "function") {
       window.setAccessToken(data.token);
     }

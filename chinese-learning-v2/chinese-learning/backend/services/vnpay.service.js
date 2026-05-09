@@ -25,7 +25,7 @@ const VNPayService = {
     const tmnCode = process.env.VNPAY_TMN_CODE;
     const hashSecret = process.env.VNPAY_HASH_SECRET;
     const vnpayUrl = process.env.VNPAY_URL;
-    const returnUrl = `${process.env.PUBLIC_URL || process.env.BASE_URL}/api/payment/vnpay/return`;
+    const returnUrl = `${process.env.BASE_URL}/api/payment/vnpay/return`;
 
     if (!gatewayEnvironmentOk(vnpayUrl)) {
       throw new Error("VNPAY_URL không khớp PAYMENT_ENVIRONMENT");
@@ -83,22 +83,26 @@ const VNPayService = {
       .createHmac("sha512", process.env.VNPAY_HASH_SECRET)
       .update(Buffer.from(signData, "utf-8"))
       .digest("hex");
+    const signatureValid = check === secureHash;
 
     const callbackAmount = Number(params["vnp_Amount"]) / 100;
     const orderAmount = Number(order?.amount || 0);
     const amountValid =
       Number.isFinite(callbackAmount) && callbackAmount === orderAmount;
-    const currencyValid = params["vnp_CurrCode"] === "VND";
+    // VNPay return có thể không gửi vnp_CurrCode, nên chỉ validate khi field này có mặt.
+    const currency = params["vnp_CurrCode"];
+    const currencyValid = !currency || currency === "VND";
     const merchantValid = params["vnp_TmnCode"] === process.env.VNPAY_TMN_CODE;
     const envValid = gatewayEnvironmentOk(process.env.VNPAY_URL);
 
     return {
       valid:
-        check === secureHash &&
+        signatureValid &&
         amountValid &&
         currencyValid &&
         merchantValid &&
         envValid,
+      signatureValid,
       success: params["vnp_ResponseCode"] === "00",
       orderId: params["vnp_TxnRef"],
       amountValid,

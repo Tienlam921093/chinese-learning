@@ -47,7 +47,12 @@ let selectedMethod = "vnpay";
   // cần refresh qua httpOnly cookie trước, không redirect vội.
   if (!getToken()) {
     try {
-      await refreshAccessToken();
+      const refreshedToken = await refreshAccessToken();
+      if (!refreshedToken) {
+        localStorage.setItem("payAfterLogin", `payment.html?plan=${plan}`);
+        location.replace(loginRedirect);
+        return;
+      }
     } catch {
       // Refresh thất bại → chưa có phiên hợp lệ
       localStorage.setItem("payAfterLogin", `payment.html?plan=${plan}`);
@@ -62,7 +67,12 @@ let selectedMethod = "vnpay";
   if (!hasCachedUser) {
     // Thử refresh một lần nữa — có thể token trong memory nhưng user chưa load
     try {
-      await refreshAccessToken();
+      const refreshedToken = await refreshAccessToken();
+      if (!refreshedToken) {
+        localStorage.setItem("payAfterLogin", `payment.html?plan=${plan}`);
+        location.replace(loginRedirect);
+        return;
+      }
     } catch {
       localStorage.setItem("payAfterLogin", `payment.html?plan=${plan}`);
       location.replace(loginRedirect);

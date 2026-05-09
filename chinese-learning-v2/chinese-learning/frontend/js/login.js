@@ -54,10 +54,14 @@ function saveSession(token, user) {
   localStorage.removeItem("hanyuUser");
   sessionStorage.removeItem("hanyuUser");
   sessionStorage.removeItem("hanyuAccessToken");
+  const sessionUser = {
+    ...user,
+    auth_source: user?.auth_source || "password",
+  };
   if (remember) {
-    localStorage.setItem("hanyuUser", JSON.stringify(user));
+    localStorage.setItem("hanyuUser", JSON.stringify(sessionUser));
   } else {
-    sessionStorage.setItem("hanyuUser", JSON.stringify(user));
+    sessionStorage.setItem("hanyuUser", JSON.stringify(sessionUser));
   }
   if (typeof window.setAccessToken === "function") {
     window.setAccessToken(token);

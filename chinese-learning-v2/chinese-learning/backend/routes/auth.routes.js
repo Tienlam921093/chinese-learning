@@ -8,6 +8,7 @@ router.post("/refresh", ctrl.refresh); // Rotation
 router.post("/logout", ctrl.logout);
 router.post("/logout-all", authenticate, ctrl.logoutAll); // Kick tất cả thiết bị
 router.get("/me", authenticate, ctrl.me);
+router.put("/me", authenticate, ctrl.updateProfile);
 router.post("/change-password", authenticate, ctrl.changePassword);
 router.post("/forgot-password", ctrl.forgotPassword); // Gửi email reset
 router.post("/reset-password", ctrl.resetPassword); // Dùng token từ email

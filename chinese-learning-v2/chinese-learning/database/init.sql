@@ -26,7 +26,7 @@ IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='Users' AND xtype='U')
 CREATE TABLE Users (
     id              INT IDENTITY(1,1) PRIMARY KEY,
     name            NVARCHAR(100)   NOT NULL,
-    email           NVARCHAR(200)   NOT NULL UNIQUE,
+    email           NVARCHAR(200)   NOT NULL,
     password_hash   NVARCHAR(255)   NOT NULL,
     role            NVARCHAR(20)    NOT NULL DEFAULT 'student',  -- student | teacher | admin
     hsk_level       TINYINT         NOT NULL DEFAULT 1,          -- 1-6
@@ -39,6 +39,7 @@ CREATE TABLE Users (
     avatar_url      NVARCHAR(500)   NULL,
     oauth_provider  NVARCHAR(20)    NULL,      -- google | facebook
     oauth_provider_id NVARCHAR(100) NULL,      -- id từ provider
+    oauth_display_name NVARCHAR(100) NULL,     -- display name cho session OAuth
     CONSTRAINT CK_hsk_level CHECK (hsk_level BETWEEN 1 AND 6),
     CONSTRAINT CK_role CHECK (role IN ('student', 'teacher', 'admin'))
 );
@@ -145,6 +146,19 @@ GO
 -- ==================== INDEXES ====================
 IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name='IX_Users_email' AND object_id=OBJECT_ID('Users'))
     CREATE INDEX IX_Users_email ON Users(email);
+GO
+
+DECLARE @emailConstraint NVARCHAR(128);
+SELECT TOP 1 @emailConstraint = kc.name
+FROM sys.key_constraints kc
+INNER JOIN sys.tables t ON t.object_id = kc.parent_object_id
+INNER JOIN sys.index_columns ic ON ic.object_id = t.object_id AND ic.index_id = kc.unique_index_id
+INNER JOIN sys.columns c ON c.object_id = t.object_id AND c.column_id = ic.column_id
+WHERE t.object_id = OBJECT_ID('Users')
+    AND c.name = 'email'
+    AND kc.[type] = 'UQ';
+IF @emailConstraint IS NOT NULL
+        EXEC('ALTER TABLE Users DROP CONSTRAINT ' + QUOTENAME(@emailConstraint));
 GO
 IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name='IX_Vocabulary_hsk' AND object_id=OBJECT_ID('Vocabulary'))
     CREATE INDEX IX_Vocabulary_hsk ON Vocabulary(hsk_level);

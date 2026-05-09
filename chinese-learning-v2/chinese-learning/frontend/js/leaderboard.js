@@ -8,23 +8,76 @@
 let allData = [];
 let curTab = "all";
 let me = getUser();
+const USER_UPDATED_KEY = "hanyuUserUpdatedAt";
+let isRefreshing = false;
+
+function getMeId() {
+  return me?.id ?? null;
+}
+
+function normalizeLeaderboardData(data) {
+  const seenIds = new Set();
+  const seenKeys = new Set();
+  return data.filter((u) => {
+    if (u?.id != null) {
+      if (seenIds.has(u.id)) return false;
+      seenIds.add(u.id);
+      return true;
+    }
+
+    const key = `${(u?.name || "").toLowerCase()}|${u?.xp || 0}|${u?.hsk_level || 1}`;
+    if (seenKeys.has(key)) return false;
+    seenKeys.add(key);
+    return true;
+  });
+}
 
 async function load() {
+  if (isRefreshing) return;
+  isRefreshing = true;
   const ok = await ensureAuthSession("login.html");
-  if (!ok) return;
+  if (!ok) {
+    isRefreshing = false;
+    return;
+  }
   me = getUser();
   initSidebar();
   try {
     const r = await authFetch(`${API}/auth/leaderboard`);
     if (r.ok) {
       const d = await r.json();
-      allData = d.users || [];
+      allData = normalizeLeaderboardData(d.users || []);
     } else throw new Error();
   } catch (err) {
     console.warn("Leaderboard: failed to fetch leaderboard data", err);
     allData = [];
   }
   render();
+  isRefreshing = false;
+}
+
+function patchMyNameFromCache() {
+  const myId = getMeId();
+  const myName = (me?.name || "").trim();
+  if (myId == null || !myName || !allData.length) return;
+
+  let changed = false;
+  allData = allData.map((u) => {
+    if (u.id === myId && u.name !== myName) {
+      changed = true;
+      return { ...u, name: myName };
+    }
+    return u;
+  });
+
+  if (changed) render();
+}
+
+function refreshAfterProfileUpdate() {
+  me = getUser();
+  initSidebar();
+  patchMyNameFromCache();
+  load();
 }
 
 function switchTab(tab) {
@@ -83,15 +136,11 @@ function renderList(data) {
       '<div class="empty-state"><div style="font-size:2.5rem;margin-bottom:.75rem">🏆</div><p>Chưa có dữ liệu</p></div>';
     return;
   }
-  const myId = me.id,
-    myName = (me.name || "").toLowerCase();
+  const myId = getMeId();
   document.getElementById("lbList").innerHTML = data
     .map((u, i) => {
       const rank = i + 1;
-      const isMe =
-        u.isMe ||
-        (myId && u.id === myId) ||
-        (u.name || "").toLowerCase() === myName;
+      const isMe = u.isMe || (myId != null && u.id === myId);
       const medal =
         rank === 1 ? "🥇" : rank === 2 ? "🥈" : rank === 3 ? "🥉" : rank;
       const planTag =
@@ -114,14 +163,9 @@ function renderList(data) {
 }
 
 function renderMyRank(data) {
-  const myId = me.id,
-    myName = (me.name || "").toLowerCase();
-  const idx = data.findIndex(
-    (u) =>
-      u.isMe ||
-      (myId && u.id === myId) ||
-      (u.name || "").toLowerCase() === myName,
-  );
+  const myId = getMeId();
+  if (myId == null) return;
+  const idx = data.findIndex((u) => u.isMe || u.id === myId);
   if (idx < 0) return;
   const u = data[idx];
   document.getElementById("myBanner").style.display = "flex";
@@ -132,5 +176,17 @@ function renderMyRank(data) {
   document.getElementById("myRankHSK").textContent =
     "HSK " + (u.hsk_level || 1);
 }
+
+window.addEventListener("storage", (event) => {
+  if (event.key === "hanyuUser" || event.key === USER_UPDATED_KEY) {
+    refreshAfterProfileUpdate();
+  }
+});
+
+window.addEventListener("focus", refreshAfterProfileUpdate);
+
+window.addEventListener("pageshow", (event) => {
+  if (event.persisted) refreshAfterProfileUpdate();
+});
 
 load();

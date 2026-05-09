@@ -18,6 +18,7 @@ const TokenService = {
         name: user.name,
         role: user.role,
         token_version: user.token_version || 1, // ← key để kick phiên cũ
+        auth_source: user.auth_source || "password",
       },
       env.JWT_SECRET,
       { expiresIn: env.JWT_EXPIRES || "15m" }, // ← 15 phút thay vì 7 ngày
@@ -25,10 +26,14 @@ const TokenService = {
   },
 
   // Tạo refresh token — chỉ lưu id
-  generateRefresh(userId) {
+  generateRefresh(userId, authSource = "password") {
     // Include a random jti/nonced value to ensure every refresh token is unique
     // even if generated within the same second for the same user id.
-    const payload = { id: userId, jti: crypto.randomBytes(16).toString("hex") };
+    const payload = {
+      id: userId,
+      auth_source: authSource,
+      jti: crypto.randomBytes(16).toString("hex"),
+    };
     return jwt.sign(payload, env.JWT_REFRESH_SECRET, { expiresIn: "30d" });
   },
 
@@ -36,7 +41,10 @@ const TokenService = {
   generate(user) {
     return {
       accessToken: this.generateAccess(user),
-      refreshToken: this.generateRefresh(user.id),
+      refreshToken: this.generateRefresh(
+        user.id,
+        user.auth_source || "password",
+      ),
       expiresIn: env.JWT_EXPIRES_SECONDS || 900, // 15 phút
     };
   },
