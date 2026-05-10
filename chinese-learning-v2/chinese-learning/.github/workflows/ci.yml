@@ -66,15 +66,19 @@ jobs:
         run: |
           # Tạo dummy secrets cho CI
           mkdir -p secrets
-          echo "MSSQL_SA_PASSWORD=REDACTED_CI_PASSWORD" > secrets/sqlserver.env
-          cat > secrets/backend.env << 'EOF'
+          CI_SQL_SECRET="$(openssl rand -hex 18)Aa1!"
+          CI_JWT_SECRET="$(openssl rand -hex 64)"
+          CI_JWT_REFRESH_SECRET="$(openssl rand -hex 64)"
+          CI_SESSION_SECRET="$(openssl rand -hex 32)"
+          echo "MSSQL_SA_PASSWORD=$CI_SQL_SECRET" > secrets/sqlserver.env
+          cat > secrets/backend.env << EOF
           DB_USER=sa
-          DB_PASSWORD=REDACTED_CI_PASSWORD
-          JWT_SECRET=ci_test_jwt_secret_64chars_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-          JWT_REFRESH_SECRET=ci_test_refresh_secret_64chars_bbbbbbbbbbbbbbbbbbbbbbbbb
+          DB_PASSWORD=$CI_SQL_SECRET
+          JWT_SECRET=$CI_JWT_SECRET
+          JWT_REFRESH_SECRET=$CI_JWT_REFRESH_SECRET
           JWT_EXPIRES=15m
           JWT_EXPIRES_SECONDS=900
-          SESSION_SECRET=ci_test_session_secret
+          SESSION_SECRET=$CI_SESSION_SECRET
           EOF
           
           docker compose -f docker-compose.prod.yml build
@@ -119,3 +123,9 @@ jobs:
             # Don't fail — just warn
           fi
           echo "✅ No critical secrets found in source code"
+
+
+
+
+
+

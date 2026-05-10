@@ -259,18 +259,18 @@ cp backend/.env.example backend/.env
 # 3. Add ONE of these AI providers to backend/.env:
 #    Option A1: OpenAI (GPT-4o-mini — cheapest)
 echo "AI_PROVIDER=openai" >> backend/.env
-echo "OPENAI_API_KEY=sk-proj-YOUR_KEY_HERE" >> backend/.env
+echo "OPENAI_API_KEY=<OPENAI_API_KEY>" >> backend/.env
 
 #    Option A2: Anthropic Claude (Claude 3.5 Haiku)
 echo "AI_PROVIDER=anthropic" >> backend/.env
-echo "ANTHROPIC_API_KEY=sk-ant-YOUR_KEY_HERE" >> backend/.env
+echo "ANTHROPIC_API_KEY=<ANTHROPIC_API_KEY>" >> backend/.env
 
 # 4. Start all services (SQL Server + Backend + Frontend + Nginx)
 docker compose up -d
 
 # 5. Wait ~60sec for SQL Server to be ready, then init database:
 docker exec hanyu-sqlserver /opt/mssql-tools/bin/sqlcmd \
-  -S localhost -U sa -P "HanYu@2024!" \
+  -S localhost -U sa -P "<SQL_SA_PASSWORD>" \
   -i /docker-entrypoint-initdb.d/init.sql
 
 # 6. Access:
@@ -288,7 +288,7 @@ docker exec hanyu-sqlserver /opt/mssql-tools/bin/sqlcmd \
 
 ```bash
 # 1. Ensure SQL Server 2022 is running (local or Docker)
-docker run -e 'ACCEPT_EULA=Y' -e 'SA_PASSWORD=HanYu@2024!' \
+docker run -e 'ACCEPT_EULA=Y' -e 'SA_PASSWORD=<SQL_SA_PASSWORD>' \
   -p 1433:1433 -d mcr.microsoft.com/mssql/server:2022-latest
 
 # 2. Backend setup
@@ -344,9 +344,9 @@ In Railway dashboard:
 ```
 ENVIRONMENT VARIABLES:
 - AI_PROVIDER = openai (or anthropic)
-- OPENAI_API_KEY = sk-proj-...
-- ANTHROPIC_API_KEY = sk-ant-...
-- SQL_PASSWORD = HanYu@2024! (or change)
+- OPENAI_API_KEY = <OPENAI_API_KEY>
+- ANTHROPIC_API_KEY = <ANTHROPIC_API_KEY>
+- SQL_PASSWORD = <SQL_SA_PASSWORD> (or change)
 - NODE_ENV = production
 ```
 
@@ -382,7 +382,7 @@ If you want to **test the chatbot** locally or the evaluator wants to:
 4. Add to `.env` or Railway variables:
    ```
    AI_PROVIDER=openai
-   OPENAI_API_KEY=sk-proj-your-key
+   OPENAI_API_KEY=<OPENAI_API_KEY>
    ```
 5. Chatbot now works in live demo!
 
@@ -394,7 +394,7 @@ If you want to **test the chatbot** locally or the evaluator wants to:
 4. Add to `.env`:
    ```
    AI_PROVIDER=anthropic
-   ANTHROPIC_API_KEY=sk-ant-your-key
+   ANTHROPIC_API_KEY=<ANTHROPIC_API_KEY>
    ```
 
 #### Option 2: Offline Demo Mode (No API Needed)
@@ -560,11 +560,11 @@ Chatbot hỗ trợ 2 provider, chọn trong `.env`:
 ```env
 # Dùng OpenAI (GPT-4o-mini — rẻ nhất)
 AI_PROVIDER=openai
-OPENAI_API_KEY=sk-proj-...
+OPENAI_API_KEY=<OPENAI_API_KEY>
 
 # Hoặc Anthropic Claude (Claude 3.5 Haiku)
 AI_PROVIDER=anthropic
-ANTHROPIC_API_KEY=sk-ant-...
+ANTHROPIC_API_KEY=<ANTHROPIC_API_KEY>
 ```
 
 Chatbot có 3 chế độ:
@@ -608,3 +608,6 @@ QuizResults    — Kết quả bài kiểm tra
 ---
 
 _Made with ❤️ in Hà Nội — HánYǔ Team 2026_
+
+
+
