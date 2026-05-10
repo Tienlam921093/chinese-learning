@@ -18,3 +18,10 @@ npm-debug.log*
 # OS
 .DS_Store
 Thumbs.db
+
+# Temporary repo artifacts
+.cache_ggshield
+chinese-learning-v2/chinese-learning/cookies.txt
+chinese-learning-v2/chinese-learning/tmp_backend_logs.txt
+chinese-learning-v2/scratch/
+
