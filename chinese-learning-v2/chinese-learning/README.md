@@ -607,7 +607,35 @@ QuizResults    — Kết quả bài kiểm tra
 
 ---
 
+## Payment Page Auth Flow (Lessons -> Payment)
+
+### Issue da xu ly
+
+Khi user da dang nhap nhung access token het han, click nut "Nang cap" tu lessons co the bi da ve login thay vi vao trang payment.
+
+### Cach xu ly
+
+- Trong payment page boot flow: luon chay refresh flow truoc khi render.
+- `refreshAccessToken()` uu tien kiem tra token hien tai bang `/auth/me`, chi goi `/auth/refresh` khi can.
+- Neu refresh that bai: redirect ve login kem redirect URL ve payment.
+
+### Test Checklist
+
+1. User dang dang nhap + token con han: vao payment khong bi redirect login.
+2. User dang nhap + token gan het han: he thong tu refresh va van vao payment.
+3. User chua dang nhap: redirect ve login va quay lai payment sau khi login.
+4. Thanh toan thanh cong: callback tra ve `status=success`, plan duoc kich hoat.
+
+### Debug nhanh
+
+- Console: kiem tra `getToken()`, `getUser()`, `await refreshAccessToken()`.
+- Network khi vao payment: phai thay `/auth/me` hoac `/auth/refresh`.
+- Network khi bam thanh toan: phai goi endpoint create payment tuong ung (VNPay/MoMo).
+
 _Made with ❤️ in Hà Nội — HánYǔ Team 2026_
+
+
+
 
 
 
