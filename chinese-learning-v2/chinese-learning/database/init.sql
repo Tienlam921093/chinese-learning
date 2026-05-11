@@ -178,12 +178,12 @@ GO
 
 -- ==================== SEED DATA ====================
 -- FIX N11: Admin account — ĐỔI MẬT KHẨU NGAY sau khi deploy!
--- Default password: REDACTED_ADMIN_PASSWORD (KHÔNG dùng cho production)
+-- Default password: set via deployment process (KHÔNG hardcode trong repo)
 IF NOT EXISTS (SELECT id FROM Users WHERE email = 'admin@hanyuu.vn')
 INSERT INTO Users (name, email, password_hash, role, hsk_level, xp)
 VALUES (N'Admin', 'admin@hanyuu.vn', '$2a$12$aJtAA6Ca3O8bXMwSe3IoIOtsTpDJA4SuOmEVRZMQaDXTkcz2ZkNiO', 'admin', 6, 9999);
 
--- Demo student (password: REDACTED_DEMO_PASSWORD)
+-- Demo student (password is documented outside repository)
 IF NOT EXISTS (SELECT id FROM Users WHERE email = 'demo@hanyuu.vn')
 INSERT INTO Users (name, email, password_hash, role, hsk_level, xp, streak)
 VALUES (N'Demo User', 'demo@hanyuu.vn', '$2b$12$O2SKxJxH0FwJPGEW1UYsWO3o.SZf5vp3tB2r.hFfcTiG8m4NJQVsm', 'student', 1, 150, 7);

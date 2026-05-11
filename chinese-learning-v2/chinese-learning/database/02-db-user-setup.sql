@@ -9,8 +9,8 @@ GO
 -- 1. Tạo login
 IF NOT EXISTS (SELECT 1 FROM sys.server_principals WHERE name = 'hanyu_app')
 BEGIN
-    -- ⚠️ Đổi password này trước khi chạy!
-    CREATE LOGIN hanyu_app WITH PASSWORD = 'REDACTED_DB_LOGIN_PASSWORD';
+    -- ⚠️ Set SQLCMD variable HANYU_APP_LOGIN_PASSWORD trước khi chạy script
+    CREATE LOGIN hanyu_app WITH PASSWORD = '$(HANYU_APP_LOGIN_PASSWORD)';
     PRINT 'Login hanyu_app created';
 END
 GO
