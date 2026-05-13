@@ -122,7 +122,6 @@ chinese-learning/
 │   ├── 📄 server.js                # Express app — entry point, middleware
 │   ├── 📄 Dockerfile               # Docker image cho backend (Node 20 Alpine)
 │   ├── 📄 package.json             # NPM dependencies
-│   ├── 📄 .env.example             # Template biến môi trường
 │   ├── 📂 config/
 │   │   └── 📄 db.js                # Kết nối SQL Server 2022 (mssql pool)
 │   ├── 📂 middleware/
@@ -136,6 +135,10 @@ chinese-learning/
 │
 ├── 📂 database/
 │   └── 📄 init.sql                 # SQL Server 2022 — tạo DB, bảng, seed data
+│
+├── 📂 secrets/
+│   ├── 📄 backend.env.example      # Template biến môi trường backend
+│   └── 📄 sqlserver.env.example    # Template biến môi trường SQL Server
 │
 ├── 📂 nginx/
 │   └── 📄 nginx.conf               # Nginx reverse proxy config
@@ -167,51 +170,11 @@ chinese-learning/
 
 ---
 
-## 🎨 Frontend Architecture (Vanilla ES6+ vs React)
+## 🎨 Frontend Architecture
 
-### Why Vanilla JavaScript?
+Frontend hiện dùng **HTML, CSS và Vanilla JavaScript**. Các page được tách theo từng màn hình trong `frontend/pages`, CSS nằm trong `frontend/css`, còn logic gọi API và quản lý auth nằm trong `frontend/js`.
 
-| Aspect              | Vanilla JS               | React                    |
-| ------------------- | ------------------------ | ------------------------ |
-| **Project Scope**   | Medium (6 pages)         | Better for large apps    |
-| **Bundle Size**     | ~50KB (with helpers)     | ~150KB+ (React+ReactDOM) |
-| **Learning Curve**  | Simpler for solo learner | More complex setup       |
-| **Server Load**     | Static HTML → fast       | SPA rendering            |
-| **API Integration** | Direct fetch()           | Added abstraction layer  |
-| **This Project**    | ✅ Sufficient            | 🔄 See roadmap           |
-
-**Decision**: Vanilla JS is **practical** for MVP + makes backend MVC shine (server not burdened with SPA re-renders).
-
-### 🔄 React Migration Roadmap (Next Phase)
-
-If this evolves to production or for **frontend engineer roles**, the plan is:
-
-```
-frontend/ (current Vanilla JS)
-    └── migrate to →
-frontend-react/
-    ├── src/
-    │   ├── components/
-    │   │   ├── Auth/ (Login, Register, Profile)
-    │   │   ├── Lessons/ (LessonList, LessonDetail)
-    │   │   ├── Vocabulary/ (Flashcard, VocabList)
-    │   │   ├── Quiz/
-    │   │   └── Chatbot/
-    │   ├── pages/
-    │   ├── hooks/
-    │   │   ├── useAuth.js (JWT token manage)
-    │   │   ├── useFetch.js (API calls)
-    │   │   └── useVocabReview.js (Spaced Repetition)
-    │   ├── services/
-    │   │   └── apiClient.js (centralized fetch + token refresh)
-    │   └── App.jsx (React Router v6)
-    ├── tailwind.config.js (or styled-components)
-    └── Dockerfile (npm run build → static serve)
-```
-
-**📋 See [`REACT_MIGRATION.md`](REACT_MIGRATION.md) for phase-by-phase implementation guide.**
-
-**Rationale**: Current backend API is **perfectly designed** for React SPA — no changes needed, just swap frontend!
+Thiết kế này phù hợp với phạm vi project hiện tại: nhiều trang chức năng, tải nhanh, dễ chạy demo bằng static server, và backend REST API vẫn là phần trọng tâm của hệ thống.
 
 ---
 
@@ -253,17 +216,18 @@ npx serve frontend -p 5500
 git clone <repo>
 cd chinese-learning
 
-# 2. Copy env template
-cp backend/.env.example backend/.env
+# 2. Copy env templates
+cp secrets/sqlserver.env.example secrets/sqlserver.env
+cp secrets/backend.env.example secrets/backend.env
 
-# 3. Add ONE of these AI providers to backend/.env:
+# 3. Edit secrets/backend.env and add ONE of these AI providers:
 #    Option A1: OpenAI (GPT-4o-mini — cheapest)
-echo "AI_PROVIDER=openai" >> backend/.env
-echo "OPENAI_API_KEY=<OPENAI_API_KEY>" >> backend/.env
+AI_PROVIDER=openai
+OPENAI_API_KEY=<OPENAI_API_KEY>
 
 #    Option A2: Anthropic Claude (Claude 3.5 Haiku)
-echo "AI_PROVIDER=anthropic" >> backend/.env
-echo "ANTHROPIC_API_KEY=<ANTHROPIC_API_KEY>" >> backend/.env
+AI_PROVIDER=anthropic
+ANTHROPIC_API_KEY=<ANTHROPIC_API_KEY>
 
 # 4. Start all services (SQL Server + Backend + Frontend + Nginx)
 docker compose up -d
@@ -292,19 +256,18 @@ docker run -e 'ACCEPT_EULA=Y' -e 'SA_PASSWORD=<SQL_SA_PASSWORD>' \
   -p 1433:1433 -d mcr.microsoft.com/mssql/server:2022-latest
 
 # 2. Backend setup
+cp secrets/sqlserver.env.example secrets/sqlserver.env
+cp secrets/backend.env.example backend/.env
+# Edit backend/.env with your DB and AI provider values
+
 cd backend
 npm install
-cp .env.example .env
-# (Edit .env with your AI provider key)
 
-# 3. Run migrations (if applicable)
-# node scripts/initDb.js  # if script exists
-
-# 4. Start dev server
+# 3. Start dev server
 npm run dev  # Watches with nodemon
 
-# 5. Frontend (in new terminal)
-cd frontend
+# 4. Frontend (in new terminal)
+cd ../frontend
 # Option 1: VS Code Live Server extension
 # Option 2: Python
 python -m http.server 8080
@@ -494,10 +457,11 @@ transaction.begin(async (err) => {
 ## �🔧 Chạy Backend Riêng (Không Docker)
 
 ```bash
+cp secrets/backend.env.example backend/.env
+# Chỉnh sửa backend/.env với DB, JWT, AI/OAuth/Payment keys nếu cần
+
 cd backend
 npm install
-cp .env.example .env       # Chỉnh sửa .env
-node scripts/initDb.js     # Khởi tạo database (nếu SQL Server đã chạy)
 npm run dev                # Chạy với nodemon (auto-reload)
 ```
 
@@ -633,9 +597,3 @@ Khi user da dang nhap nhung access token het han, click nut "Nang cap" tu lesson
 - Network khi bam thanh toan: phai goi endpoint create payment tuong ung (VNPay/MoMo).
 
 _Made with ❤️ in Hà Nội — HánYǔ Team 2026_
-
-
-
-
-
-
