@@ -158,7 +158,11 @@ WHERE t.object_id = OBJECT_ID('Users')
     AND c.name = 'email'
     AND kc.[type] = 'UQ';
 IF @emailConstraint IS NOT NULL
-        EXEC('ALTER TABLE Users DROP CONSTRAINT ' + QUOTENAME(@emailConstraint));
+BEGIN
+    DECLARE @dropEmailConstraintSql NVARCHAR(MAX);
+    SET @dropEmailConstraintSql = N'ALTER TABLE Users DROP CONSTRAINT ' + QUOTENAME(@emailConstraint);
+    EXEC sp_executesql @dropEmailConstraintSql;
+END
 GO
 IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name='IX_Vocabulary_hsk' AND object_id=OBJECT_ID('Vocabulary'))
     CREATE INDEX IX_Vocabulary_hsk ON Vocabulary(hsk_level);
@@ -189,19 +193,35 @@ INSERT INTO Users (name, email, password_hash, role, hsk_level, xp, streak)
 VALUES (N'Demo User', 'demo@hanyuu.vn', '$2b$12$O2SKxJxH0FwJPGEW1UYsWO3o.SZf5vp3tB2r.hFfcTiG8m4NJQVsm', 'student', 1, 150, 7);
 
 -- Bài học HSK 1
-IF NOT EXISTS (SELECT id FROM Lessons WHERE title = N'Chào Hỏi Cơ Bản')
-BEGIN
-INSERT INTO Lessons (hsk_level, title, description, emoji, word_count, duration_minutes, order_index) VALUES
-(1, N'Chào Hỏi Cơ Bản',      N'你好、谢谢、对不起',          N'👋', 12, 15, 1),
-(1, N'Số Đếm 1-10',           N'一二三四五六七八九十',          N'🔢', 10, 10, 2),
-(1, N'Màu Sắc',               N'红色蓝色绿色黄色',              N'🎨', 8,  12, 3),
-(1, N'Gia Đình',              N'爸爸妈妈哥哥姐姐',              N'👪', 14, 18, 4),
-(1, N'Thức Ăn & Đồ Uống',    N'饭水茶咖啡面包',               N'🍜', 16, 20, 5),
-(1, N'Thời Gian',             N'今天明天昨天几点',              N'🕐', 12, 15, 6),
-(2, N'Mua Sắm',               N'多少钱便宜贵买卖',              N'🛍️', 18, 22, 7),
-(2, N'Giao Thông',            N'公交车地铁出租车',              N'🚌', 15, 18, 8),
-(3, N'Thời Tiết',             N'天气下雨晴天刮风',              N'⛅', 22, 28, 9);
-END;
+SET IDENTITY_INSERT Lessons ON;
+IF NOT EXISTS (SELECT id FROM Lessons WHERE id = 1)
+INSERT INTO Lessons (id, hsk_level, title, description, emoji, word_count, duration_minutes, order_index) VALUES
+(1, 1, N'Chào Hỏi Cơ Bản', N'你好、谢谢、对不起', N'👋', 12, 15, 1);
+IF NOT EXISTS (SELECT id FROM Lessons WHERE id = 2)
+INSERT INTO Lessons (id, hsk_level, title, description, emoji, word_count, duration_minutes, order_index) VALUES
+(2, 1, N'Số Đếm 1-10', N'一二三四五六七八九十', N'🔢', 10, 10, 2);
+IF NOT EXISTS (SELECT id FROM Lessons WHERE id = 3)
+INSERT INTO Lessons (id, hsk_level, title, description, emoji, word_count, duration_minutes, order_index) VALUES
+(3, 1, N'Màu Sắc', N'红色蓝色绿色黄色', N'🎨', 8, 12, 3);
+IF NOT EXISTS (SELECT id FROM Lessons WHERE id = 4)
+INSERT INTO Lessons (id, hsk_level, title, description, emoji, word_count, duration_minutes, order_index) VALUES
+(4, 1, N'Gia Đình', N'爸爸妈妈哥哥姐姐', N'👪', 14, 18, 4);
+IF NOT EXISTS (SELECT id FROM Lessons WHERE id = 5)
+INSERT INTO Lessons (id, hsk_level, title, description, emoji, word_count, duration_minutes, order_index) VALUES
+(5, 1, N'Thức Ăn & Đồ Uống', N'饭水茶咖啡面包', N'🍜', 16, 20, 5);
+IF NOT EXISTS (SELECT id FROM Lessons WHERE id = 6)
+INSERT INTO Lessons (id, hsk_level, title, description, emoji, word_count, duration_minutes, order_index) VALUES
+(6, 1, N'Thời Gian', N'今天明天昨天几点', N'🕐', 12, 15, 6);
+IF NOT EXISTS (SELECT id FROM Lessons WHERE id = 7)
+INSERT INTO Lessons (id, hsk_level, title, description, emoji, word_count, duration_minutes, order_index) VALUES
+(7, 2, N'Mua Sắm', N'多少钱便宜贵买卖', N'🛍️', 18, 22, 7);
+IF NOT EXISTS (SELECT id FROM Lessons WHERE id = 8)
+INSERT INTO Lessons (id, hsk_level, title, description, emoji, word_count, duration_minutes, order_index) VALUES
+(8, 2, N'Giao Thông', N'公交车地铁出租车', N'🚌', 15, 18, 8);
+IF NOT EXISTS (SELECT id FROM Lessons WHERE id = 9)
+INSERT INTO Lessons (id, hsk_level, title, description, emoji, word_count, duration_minutes, order_index) VALUES
+(9, 3, N'Thời Tiết', N'天气下雨晴天刮风', N'⛅', 22, 28, 9);
+SET IDENTITY_INSERT Lessons OFF;
 GO
 
 -- Từ vựng HSK 1 mẫu

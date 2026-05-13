@@ -24,6 +24,23 @@ services:
       retries: 5
       start_period: 90s
 
+  db-init:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: hanyu-db-init
+    env_file:
+      - ./secrets/sqlserver.env
+      - ./secrets/backend.env
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+    volumes:
+      - ./database/init.sql:/tmp/init.sql:ro
+      - ./database/init-app.sh:/tmp/init-app.sh:ro
+    networks:
+      - hanyu-network
+    restart: "no"
+    command: ["bash", "/tmp/init-app.sh"]
+
   backend:
     build:
       context: ./backend
@@ -42,8 +59,8 @@ services:
     ports:
       - "5000:5000"
     depends_on:
-      sqlserver:
-        condition: service_healthy
+      db-init:
+        condition: service_completed_successfully
     volumes:
       - ./backend:/app
       - /app/node_modules
