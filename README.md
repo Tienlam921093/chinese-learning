@@ -167,49 +167,8 @@ chinese-learning/
 
 ---
 
-## 🎨 Frontend Architecture (Vanilla ES6+ vs React)
+## 🎨 Frontend Architecture (
 
-### Why Vanilla JavaScript?
-
-| Aspect              | Vanilla JS               | React                    |
-| ------------------- | ------------------------ | ------------------------ |
-| **Project Scope**   | Medium (6 pages)         | Better for large apps    |
-| **Bundle Size**     | ~50KB (with helpers)     | ~150KB+ (React+ReactDOM) |
-| **Learning Curve**  | Simpler for solo learner | More complex setup       |
-| **Server Load**     | Static HTML → fast       | SPA rendering            |
-| **API Integration** | Direct fetch()           | Added abstraction layer  |
-| **This Project**    | ✅ Sufficient            | 🔄 See roadmap           |
-
-**Decision**: Vanilla JS is **practical** for MVP + makes backend MVC shine (server not burdened with SPA re-renders).
-
-### 🔄 React Migration Roadmap (Next Phase)
-
-If this evolves to production or for **frontend engineer roles**, the plan is:
-
-```
-frontend/ (current Vanilla JS)
-    └── migrate to →
-frontend-react/
-    ├── src/
-    │   ├── components/
-    │   │   ├── Auth/ (Login, Register, Profile)
-    │   │   ├── Lessons/ (LessonList, LessonDetail)
-    │   │   ├── Vocabulary/ (Flashcard, VocabList)
-    │   │   ├── Quiz/
-    │   │   └── Chatbot/
-    │   ├── pages/
-    │   ├── hooks/
-    │   │   ├── useAuth.js (JWT token manage)
-    │   │   ├── useFetch.js (API calls)
-    │   │   └── useVocabReview.js (Spaced Repetition)
-    │   ├── services/
-    │   │   └── apiClient.js (centralized fetch + token refresh)
-    │   └── App.jsx (React Router v6)
-    ├── tailwind.config.js (or styled-components)
-    └── Dockerfile (npm run build → static serve)
-```
-
-**📋 See [`REACT_MIGRATION.md`](REACT_MIGRATION.md) for phase-by-phase implementation guide.**
 
 **Rationale**: Current backend API is **perfectly designed** for React SPA — no changes needed, just swap frontend!
 
