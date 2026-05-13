@@ -167,7 +167,6 @@ chinese-learning/
 
 ---
 
-## 🎨 Frontend Architecture (
 
 
 **Rationale**: Current backend API is **perfectly designed** for React SPA — no changes needed, just swap frontend!
@@ -213,7 +212,7 @@ git clone <repo>
 cd chinese-learning
 
 # 2. Copy env template
-cp backend/.env.example backend/.env
+cp secrets/.env.example secrets/.env
 
 # 3. Add ONE of these AI providers to backend/.env:
 #    Option A1: OpenAI (GPT-4o-mini — cheapest)
@@ -592,8 +591,3 @@ Khi user da dang nhap nhung access token het han, click nut "Nang cap" tu lesson
 - Network khi bam thanh toan: phai goi endpoint create payment tuong ung (VNPay/MoMo).
 
 _Made with ❤️ in Hà Nội — HánYǔ Team 2026_
-
-
-
-
-
