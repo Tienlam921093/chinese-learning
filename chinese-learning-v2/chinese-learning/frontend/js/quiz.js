@@ -33,6 +33,16 @@ let questions = [],
 let timerInterval = null,
   timeLeft = 20;
 let quizStartTime = null; // Track quiz start time for time_spent
+let quizAttemptId = null;
+
+function createAttemptId() {
+  if (window.crypto && typeof window.crypto.randomUUID === "function") {
+    return window.crypto.randomUUID();
+  }
+  const bytes = new Uint8Array(16);
+  window.crypto.getRandomValues(bytes);
+  return Array.from(bytes, (b) => b.toString(16).padStart(2, "0")).join("");
+}
 
 function shuffle(arr) {
   return [...arr].sort(() => Math.random() - 0.5);
@@ -98,6 +108,7 @@ async function startQuiz() {
   correct = 0;
   wrong = 0;
   quizStartTime = Date.now(); // Start tracking time
+  quizAttemptId = createAttemptId();
 
   document.getElementById("qTotal").textContent = questions.length;
   document.getElementById("startScreen").style.display = "none";
@@ -249,6 +260,7 @@ async function endQuiz() {
         score,
         time_spent: timeSpent,
         type: quizType,
+        attempt_id: quizAttemptId,
       }),
     });
 

@@ -1,7 +1,7 @@
 const assert = require('assert');
 const path = require('path');
 
-function loadControllerWithMocks({ saveProgressImpl, addXPImpl }) {
+function loadControllerWithMocks({ completeOnceImpl }) {
   const lessonModelPath = path.resolve(__dirname, '../models/lesson.model.js');
   const userModelPath = path.resolve(__dirname, '../models/user.model.js');
   const controllerPath = path.resolve(__dirname, '../controllers/lesson.controller.js');
@@ -14,14 +14,14 @@ function loadControllerWithMocks({ saveProgressImpl, addXPImpl }) {
     id: lessonModelPath,
     filename: lessonModelPath,
     loaded: true,
-    exports: { saveProgress: saveProgressImpl },
+    exports: { completeOnce: completeOnceImpl },
   };
 
   require.cache[userModelPath] = {
     id: userModelPath,
     filename: userModelPath,
     loaded: true,
-    exports: { addXP: addXPImpl },
+    exports: { findById: async () => ({ plan: 'free' }) },
   };
 
   return require(controllerPath);
@@ -43,16 +43,13 @@ function createRes() {
 }
 
 async function run() {
-  let saveCall = 0;
-  let addXpCalls = 0;
+  let completeCall = 0;
 
   const LessonController = loadControllerWithMocks({
-    saveProgressImpl: async () => {
-      saveCall += 1;
-      return { alreadyCompleted: saveCall > 1 };
-    },
-    addXPImpl: async () => {
-      addXpCalls += 1;
+    completeOnceImpl: async ({ xpGain }) => {
+      completeCall += 1;
+      const alreadyCompleted = completeCall > 1;
+      return { alreadyCompleted, xpGained: alreadyCompleted ? 0 : xpGain };
     },
   });
 
@@ -66,13 +63,13 @@ async function run() {
   await LessonController.complete(req, res1);
   assert.strictEqual(res1.statusCode, 200);
   assert.strictEqual(res1.body.xp_gained, 90);
-  assert.strictEqual(addXpCalls, 1);
+  assert.strictEqual(completeCall, 1);
 
   const res2 = createRes();
   await LessonController.complete(req, res2);
   assert.strictEqual(res2.statusCode, 200);
   assert.strictEqual(res2.body.xp_gained, 0);
-  assert.strictEqual(addXpCalls, 1);
+  assert.strictEqual(completeCall, 2);
 
   console.log('Lesson complete XP anti-farm test passed.');
 }

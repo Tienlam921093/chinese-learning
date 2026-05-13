@@ -75,23 +75,19 @@ const LessonController = {
       if (!lessonId || isNaN(lessonId))
         return res.status(400).json({ message: 'Lesson ID không hợp lệ' });
 
-      const { alreadyCompleted } = await LessonModel.saveProgress({
+      const calculatedXP = calculateLessonXP(score);
+      const { alreadyCompleted, xpGained } = await LessonModel.completeOnce({
         userId: req.user.id,
         lessonId,
         score,
-        timeSpent: time_spent
+        timeSpent: time_spent,
+        xpGain: calculatedXP,
       });
 
       // Chỉ cộng XP ở lần hoàn thành đầu tiên để tránh farm XP.
-      let xpGain = 0;
-      if (!alreadyCompleted) {
-        xpGain = calculateLessonXP(score);
-        await UserModel.addXP(req.user.id, xpGain);
-      }
-
       res.json({
         message: alreadyCompleted ? 'Đã cập nhật kết quả bài học' : 'Hoàn thành bài học!',
-        xp_gained: xpGain,
+        xp_gained: xpGained,
         score
       });
     } catch (err) {
@@ -102,4 +98,3 @@ const LessonController = {
 };
 
 module.exports = LessonController;
-

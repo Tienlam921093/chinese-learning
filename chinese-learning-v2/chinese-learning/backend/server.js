@@ -168,7 +168,7 @@ app.get("/api/health", (req, res) =>
 app.use(notFoundHandler);
 app.use(globalErrorHandler);
 
-const { getPool, query, sql } = require("./config/db");
+const { getPool, query } = require("./config/db");
 const { RefreshTokenModel } = require("./models/refreshToken.model");
 
 async function ensureSchema() {
@@ -211,8 +211,35 @@ async function ensureSchema() {
          END`,
         {},
       );
+      await query(
+        `IF COL_LENGTH('dbo.QuizResults', 'quiz_type') IS NULL
+         BEGIN
+           ALTER TABLE dbo.QuizResults ADD quiz_type NVARCHAR(20) NULL;
+         END
+         IF COL_LENGTH('dbo.QuizResults', 'xp_awarded') IS NULL
+         BEGIN
+           ALTER TABLE dbo.QuizResults ADD xp_awarded INT NOT NULL CONSTRAINT DF_QuizResults_xp_awarded DEFAULT 0;
+         END
+         IF COL_LENGTH('dbo.QuizResults', 'attempt_key') IS NULL
+         BEGIN
+           ALTER TABLE dbo.QuizResults ADD attempt_key VARCHAR(128) NULL;
+         END`,
+        {},
+      );
+      await query(
+        `IF NOT EXISTS (
+           SELECT 1 FROM sys.indexes
+           WHERE name = 'UX_QuizResults_attempt_key' AND object_id = OBJECT_ID('dbo.QuizResults')
+         )
+         BEGIN
+           CREATE UNIQUE INDEX UX_QuizResults_attempt_key
+           ON dbo.QuizResults (attempt_key)
+           WHERE attempt_key IS NOT NULL;
+         END`,
+        {},
+      );
       console.log(
-        "[DB] Schema check complete for oauth_display_name + indexes",
+        "[DB] Schema check complete for oauth_display_name, quiz anti-farm columns + indexes",
       );
       return;
     } catch (err) {

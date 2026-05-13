@@ -1,7 +1,7 @@
 /**
  * LESSON MODEL
  */
-const { sql, query } = require('../config/db');
+const { sql, getPool, query } = require('../config/db');
 
 // Demo data fallback khi DB chưa seed đủ
 const DEMO_LESSONS = [
@@ -65,32 +65,57 @@ const LessonModel = {
     }
   },
 
-  async saveProgress({ userId, lessonId, score, timeSpent }) {
-    const existing = await query(
-      `SELECT completed FROM UserProgress WHERE user_id=@uid AND lesson_id=@lid`,
-      {
-        uid: { type: sql.Int, value: userId },
-        lid: { type: sql.Int, value: lessonId },
-      }
-    );
-    const alreadyCompleted = existing.recordset[0]?.completed === true || existing.recordset[0]?.completed === 1;
+  async completeOnce({ userId, lessonId, score, timeSpent, xpGain }) {
+    const p = await getPool();
+    const transaction = new sql.Transaction(p);
 
-    await query(
-      `MERGE UserProgress AS t
-       USING (VALUES (@uid,@lid)) AS s(user_id,lesson_id)
-       ON t.user_id=s.user_id AND t.lesson_id=s.lesson_id
-       WHEN MATCHED THEN UPDATE SET completed=1,score=@score,updated_at=GETDATE()
-       WHEN NOT MATCHED THEN INSERT (user_id,lesson_id,completed,score,time_spent,created_at)
-         VALUES (@uid,@lid,1,@score,@time,GETDATE())`,
-      {
-        uid:   { type: sql.Int, value: userId   },
-        lid:   { type: sql.Int, value: lessonId },
-        score: { type: sql.Int, value: score    },
-        time:  { type: sql.Int, value: timeSpent },
-      }
-    );
+    await transaction.begin(sql.ISOLATION_LEVEL.SERIALIZABLE);
+    try {
+      const existingReq = new sql.Request(transaction);
+      existingReq.input('uid', sql.Int, userId);
+      existingReq.input('lid', sql.Int, lessonId);
+      const existing = await existingReq.query(
+        `SELECT completed
+         FROM UserProgress WITH (UPDLOCK, HOLDLOCK)
+         WHERE user_id=@uid AND lesson_id=@lid`
+      );
+      const alreadyCompleted =
+        existing.recordset[0]?.completed === true ||
+        existing.recordset[0]?.completed === 1;
 
-    return { alreadyCompleted };
+      const saveReq = new sql.Request(transaction);
+      saveReq.input('uid', sql.Int, userId);
+      saveReq.input('lid', sql.Int, lessonId);
+      saveReq.input('score', sql.Int, score);
+      saveReq.input('time', sql.Int, timeSpent);
+      await saveReq.query(
+        `MERGE UserProgress AS t
+         USING (VALUES (@uid,@lid)) AS s(user_id,lesson_id)
+         ON t.user_id=s.user_id AND t.lesson_id=s.lesson_id
+         WHEN MATCHED THEN UPDATE SET
+           completed=1,
+           score=@score,
+           time_spent=@time,
+           attempts=attempts+1,
+           updated_at=GETDATE()
+         WHEN NOT MATCHED THEN INSERT
+           (user_id,lesson_id,completed,score,time_spent,created_at,updated_at)
+           VALUES (@uid,@lid,1,@score,@time,GETDATE(),GETDATE());`
+      );
+
+      if (!alreadyCompleted && xpGain > 0) {
+        const xpReq = new sql.Request(transaction);
+        xpReq.input('uid', sql.Int, userId);
+        xpReq.input('xp', sql.Int, xpGain);
+        await xpReq.query(`UPDATE Users SET xp=xp+@xp WHERE id=@uid`);
+      }
+
+      await transaction.commit();
+      return { alreadyCompleted, xpGained: alreadyCompleted ? 0 : xpGain };
+    } catch (err) {
+      await transaction.rollback();
+      throw err;
+    }
   },
 };
 

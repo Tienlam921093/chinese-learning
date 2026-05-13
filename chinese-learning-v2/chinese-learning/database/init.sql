@@ -139,6 +139,9 @@ CREATE TABLE QuizResults (
     correct_answers INT             NOT NULL,
     score           AS (CAST(correct_answers AS FLOAT) / total_questions * 100) PERSISTED,
     time_taken      INT             NULL,   -- giây
+    quiz_type       NVARCHAR(20)    NULL,
+    xp_awarded      INT             NOT NULL DEFAULT 0,
+    attempt_key     VARCHAR(128)    NULL,
     created_at      DATETIME        NOT NULL DEFAULT GETDATE()
 );
 GO
