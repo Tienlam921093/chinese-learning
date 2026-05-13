@@ -122,7 +122,6 @@ chinese-learning/
 │   ├── 📄 server.js                # Express app — entry point, middleware
 │   ├── 📄 Dockerfile               # Docker image cho backend (Node 20 Alpine)
 │   ├── 📄 package.json             # NPM dependencies
-│   ├── 📄 .env.example             # Template biến môi trường
 │   ├── 📂 config/
 │   │   └── 📄 db.js                # Kết nối SQL Server 2022 (mssql pool)
 │   ├── 📂 middleware/
@@ -136,6 +135,10 @@ chinese-learning/
 │
 ├── 📂 database/
 │   └── 📄 init.sql                 # SQL Server 2022 — tạo DB, bảng, seed data
+│
+├── 📂 secrets/
+│   ├── 📄 backend.env.example      # Template biến môi trường backend
+│   └── 📄 sqlserver.env.example    # Template biến môi trường SQL Server
 │
 ├── 📂 nginx/
 │   └── 📄 nginx.conf               # Nginx reverse proxy config
@@ -167,9 +170,11 @@ chinese-learning/
 
 ---
 
+## 🎨 Frontend Architecture
 
+Frontend hiện dùng **HTML, CSS và Vanilla JavaScript**. Các page được tách theo từng màn hình trong `frontend/pages`, CSS nằm trong `frontend/css`, còn logic gọi API và quản lý auth nằm trong `frontend/js`.
 
-**Rationale**: Current backend API is **perfectly designed** for React SPA — no changes needed, just swap frontend!
+Thiết kế này phù hợp với phạm vi project hiện tại: nhiều trang chức năng, tải nhanh, dễ chạy demo bằng static server, và backend REST API vẫn là phần trọng tâm của hệ thống.
 
 ---
 
@@ -211,17 +216,18 @@ npx serve frontend -p 5500
 git clone <repo>
 cd chinese-learning
 
-# 2. Copy env template
-cp secrets/.env.example secrets/.env
+# 2. Copy env templates
+cp secrets/sqlserver.env.example secrets/sqlserver.env
+cp secrets/backend.env.example secrets/backend.env
 
-# 3. Add ONE of these AI providers to backend/.env:
+# 3. Edit secrets/backend.env and add ONE of these AI providers:
 #    Option A1: OpenAI (GPT-4o-mini — cheapest)
-echo "AI_PROVIDER=openai" >> backend/.env
-echo "OPENAI_API_KEY=<OPENAI_API_KEY>" >> backend/.env
+AI_PROVIDER=openai
+OPENAI_API_KEY=<OPENAI_API_KEY>
 
 #    Option A2: Anthropic Claude (Claude 3.5 Haiku)
-echo "AI_PROVIDER=anthropic" >> backend/.env
-echo "ANTHROPIC_API_KEY=<ANTHROPIC_API_KEY>" >> backend/.env
+AI_PROVIDER=anthropic
+ANTHROPIC_API_KEY=<ANTHROPIC_API_KEY>
 
 # 4. Start all services (SQL Server + Backend + Frontend + Nginx)
 docker compose up -d
@@ -250,19 +256,18 @@ docker run -e 'ACCEPT_EULA=Y' -e 'SA_PASSWORD=<SQL_SA_PASSWORD>' \
   -p 1433:1433 -d mcr.microsoft.com/mssql/server:2022-latest
 
 # 2. Backend setup
+cp secrets/sqlserver.env.example secrets/sqlserver.env
+cp secrets/backend.env.example backend/.env
+# Edit backend/.env with your DB and AI provider values
+
 cd backend
 npm install
-cp .env.example .env
-# (Edit .env with your AI provider key)
 
-# 3. Run migrations (if applicable)
-# node scripts/initDb.js  # if script exists
-
-# 4. Start dev server
+# 3. Start dev server
 npm run dev  # Watches with nodemon
 
-# 5. Frontend (in new terminal)
-cd frontend
+# 4. Frontend (in new terminal)
+cd ../frontend
 # Option 1: VS Code Live Server extension
 # Option 2: Python
 python -m http.server 8080
@@ -452,10 +457,11 @@ transaction.begin(async (err) => {
 ## �🔧 Chạy Backend Riêng (Không Docker)
 
 ```bash
+cp secrets/backend.env.example backend/.env
+# Chỉnh sửa backend/.env với DB, JWT, AI/OAuth/Payment keys nếu cần
+
 cd backend
 npm install
-cp .env.example .env       # Chỉnh sửa .env
-node scripts/initDb.js     # Khởi tạo database (nếu SQL Server đã chạy)
 npm run dev                # Chạy với nodemon (auto-reload)
 ```
 
