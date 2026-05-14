@@ -15,8 +15,8 @@ const config = {
   user:     env.DB_USER,
   password: env.DB_PASSWORD,
   options: {
-    encrypt:                env.NODE_ENV === 'production',
-    trustServerCertificate: env.NODE_ENV !== 'production',
+    encrypt:                false, // Docker SQL Server không cần encrypt
+    trustServerCertificate: true,  // Trust self-signed cert trong Docker
     enableArithAbort:       true,
     connectTimeout:         30000,
     requestTimeout:         30000,
