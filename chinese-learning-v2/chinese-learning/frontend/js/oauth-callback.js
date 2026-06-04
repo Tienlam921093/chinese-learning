@@ -8,10 +8,18 @@
   const error = params.get("error");
   const provider = params.get("provider");
 
-  const API_BASE =
-    window.location.port === "5500" || window.location.protocol === "file:"
+  function resolveApiBase() {
+    const configured =
+      window.HANYU_API_BASE_URL || window.HANYU_API_BASE || window.API_BASE_URL;
+    if (configured && String(configured).trim()) {
+      const normalized = String(configured).trim().replace(/\/+$/, "");
+      return normalized.endsWith("/api") ? normalized : `${normalized}/api`;
+    }
+    return window.location.port === "5500" || window.location.protocol === "file:"
       ? "http://localhost:5000/api"
       : "/api";
+  }
+  const API_BASE = resolveApiBase();
 
   function showError(msg) {
     document.getElementById("spinner").style.display = "none";

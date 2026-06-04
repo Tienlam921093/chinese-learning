@@ -7,7 +7,16 @@
 const IS_LOCAL_DEV =
   window.location.protocol === "file:" ||
   ["localhost", "127.0.0.1"].includes(window.location.hostname);
-const API_BASE = IS_LOCAL_DEV ? "http://localhost:5000/api" : "/api";
+function resolveApiBase() {
+  const configured =
+    window.HANYU_API_BASE_URL || window.HANYU_API_BASE || window.API_BASE_URL;
+  if (configured && String(configured).trim()) {
+    const normalized = String(configured).trim().replace(/\/+$/, "");
+    return normalized.endsWith("/api") ? normalized : `${normalized}/api`;
+  }
+  return IS_LOCAL_DEV ? "http://localhost:5000/api" : "/api";
+}
+const API_BASE = resolveApiBase();
 
 /* ── Alert ── */
 function showAlert(msg, type = "error") {

@@ -5,10 +5,19 @@
 "use strict";
 
 // Global API base URL — accessible to all scripts
-window.API = window.HANYU_API =
-  window.location.protocol === "file:"
+function resolveApiBase() {
+  const configured =
+    window.HANYU_API_BASE_URL || window.HANYU_API_BASE || window.API_BASE_URL;
+  if (configured && String(configured).trim()) {
+    const normalized = String(configured).trim().replace(/\/+$/, "");
+    return normalized.endsWith("/api") ? normalized : `${normalized}/api`;
+  }
+  return window.location.protocol === "file:"
     ? "http://localhost:5000/api" // Local file:// dev only
     : "/api"; // Use nginx proxy (same origin, same port) for all HTTP(S)
+}
+
+window.API = window.HANYU_API = resolveApiBase();
 const ACCESS_TOKEN_KEY = "hanyuAccessToken";
 
 function getTokenStore() {

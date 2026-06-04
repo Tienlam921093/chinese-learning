@@ -7,10 +7,18 @@
 const IS_LOCAL_DEV =
   window.location.protocol === "file:" ||
   ["localhost", "127.0.0.1"].includes(window.location.hostname);
-const API_BASE =
-  window.location.protocol === "file:"
+function resolveApiBase() {
+  const configured =
+    window.HANYU_API_BASE_URL || window.HANYU_API_BASE || window.API_BASE_URL;
+  if (configured && String(configured).trim()) {
+    const normalized = String(configured).trim().replace(/\/+$/, "");
+    return normalized.endsWith("/api") ? normalized : `${normalized}/api`;
+  }
+  return window.location.protocol === "file:"
     ? "http://localhost:5000/api" // Only for file:// dev - no nginx proxy available
     : "/api"; // Use nginx proxy for all HTTP(S) including localhost:8080
+}
+const API_BASE = resolveApiBase();
 const LOGIN_PARAMS = new URLSearchParams(window.location.search);
 // decodeURIComponent để xử lý redirect có chứa query string (vd: payment.html?plan=pro)
 const _rawRedirect = LOGIN_PARAMS.get("redirect");

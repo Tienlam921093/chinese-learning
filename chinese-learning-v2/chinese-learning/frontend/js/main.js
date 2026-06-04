@@ -16,10 +16,18 @@ if (nav) {
 
 // ==================== API HELPER ====================
 // Auto-detect: dùng relative URL qua nginx proxy, fallback localhost cho dev
-const API_BASE =
-  window.location.port === "5500" || window.location.protocol === "file:"
+function resolveApiBase() {
+  const configured =
+    window.HANYU_API_BASE_URL || window.HANYU_API_BASE || window.API_BASE_URL;
+  if (configured && String(configured).trim()) {
+    const normalized = String(configured).trim().replace(/\/+$/, "");
+    return normalized.endsWith("/api") ? normalized : `${normalized}/api`;
+  }
+  return window.location.port === "5500" || window.location.protocol === "file:"
     ? "http://localhost:5000/api"
     : "/api";
+}
+const API_BASE = resolveApiBase();
 const ACCESS_TOKEN_KEY = "hanyuAccessToken";
 
 function loadAccessToken() {

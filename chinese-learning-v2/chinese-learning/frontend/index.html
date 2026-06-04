@@ -1644,7 +1644,22 @@
       </div>
     </footer>
 
+    <script src="js/deploy-config.js"></script>
     <script>
+      function resolveApiBase() {
+        const configured =
+          window.HANYU_API_BASE_URL || window.HANYU_API_BASE || window.API_BASE_URL;
+        if (configured && String(configured).trim()) {
+          const normalized = String(configured).trim().replace(/\/+$/, "");
+          return normalized.endsWith("/api") ? normalized : `${normalized}/api`;
+        }
+        return window.location.protocol === "file:"
+          ? "http://localhost:5000/api"
+          : "/api";
+      }
+
+      const API_BASE = resolveApiBase();
+
       // ── Helper: đọc token/user từ cả localStorage lẫn sessionStorage ──
       function getToken() {
         const hasUser =
@@ -1667,7 +1682,7 @@
       async function restoreHomeSession() {
         if (getUser()?.id) return getUser();
         try {
-          const refreshRes = await fetch("/api/auth/refresh", {
+          const refreshRes = await fetch(`${API_BASE}/auth/refresh`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             credentials: "include",
@@ -1675,7 +1690,7 @@
           const refreshData = await refreshRes.json();
           if (!refreshRes.ok || !refreshData.token) return null;
 
-          const meRes = await fetch("/api/auth/me", {
+          const meRes = await fetch(`${API_BASE}/auth/me`, {
             headers: { Authorization: `Bearer ${refreshData.token}` },
             credentials: "include",
           });

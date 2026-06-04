@@ -1,0 +1,25 @@
+{
+  "version": 2,
+  "buildCommand": "node scripts/write-frontend-config.mjs",
+  "outputDirectory": "chinese-learning-v2/chinese-learning/frontend",
+  "cleanUrls": true,
+  "trailingSlash": false,
+  "rewrites": [
+    {
+      "source": "/pages/:path*",
+      "destination": "/pages/:path*"
+    },
+    {
+      "source": "/js/:path*",
+      "destination": "/js/:path*"
+    },
+    {
+      "source": "/css/:path*",
+      "destination": "/css/:path*"
+    },
+    {
+      "source": "/:path*",
+      "destination": "/index.html"
+    }
+  ]
+}
