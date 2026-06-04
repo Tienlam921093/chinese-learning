@@ -22,10 +22,23 @@ const API_BASE = resolveApiBase();
 const LOGIN_PARAMS = new URLSearchParams(window.location.search);
 // decodeURIComponent để xử lý redirect có chứa query string (vd: payment.html?plan=pro)
 const _rawRedirect = LOGIN_PARAMS.get("redirect");
+const HAS_EXPLICIT_REDIRECT = Boolean(
+  _rawRedirect || localStorage.getItem("payAfterLogin"),
+);
 const LOGIN_REDIRECT =
   (_rawRedirect ? decodeURIComponent(_rawRedirect) : null) ||
   localStorage.getItem("payAfterLogin") ||
   "lessons.html";
+
+function defaultPageForRole(user) {
+  if (user?.role === "admin") return "admin-dashboard.html";
+  if (user?.role === "teacher") return "teacher-dashboard.html";
+  return "lessons.html";
+}
+
+function getPostLoginRedirect(user) {
+  return HAS_EXPLICIT_REDIRECT ? LOGIN_REDIRECT : defaultPageForRole(user);
+}
 
 function showAlert(msg, type = "error") {
   const el = document.getElementById("alertBox");
@@ -62,6 +75,7 @@ function saveSession(token, user) {
   localStorage.removeItem("hanyuUser");
   sessionStorage.removeItem("hanyuUser");
   sessionStorage.removeItem("hanyuAccessToken");
+  localStorage.removeItem("hanyuAccessToken");
   const sessionUser = {
     ...user,
     auth_source: user?.auth_source || "password",
@@ -73,6 +87,8 @@ function saveSession(token, user) {
   }
   if (typeof window.setAccessToken === "function") {
     window.setAccessToken(token);
+  } else if (token) {
+    sessionStorage.setItem("hanyuAccessToken", token);
   }
 }
 
@@ -82,9 +98,9 @@ function socialLogin(provider) {
   const t = setTimeout(() => ctrl.abort(), 800);
   const oauthRedirect =
     new URLSearchParams(window.location.search).get("redirect") ||
-    localStorage.getItem("payAfterLogin") ||
-    "lessons.html";
-  localStorage.setItem("oauthRedirect", oauthRedirect);
+    localStorage.getItem("payAfterLogin");
+  if (oauthRedirect) localStorage.setItem("oauthRedirect", oauthRedirect);
+  else localStorage.removeItem("oauthRedirect");
   fetch(`${API_BASE}/health`, { signal: ctrl.signal })
     .then((r) => {
       clearTimeout(t);
@@ -144,7 +160,7 @@ async function handleLogin() {
       localStorage.removeItem("payAfterLogin");
       showAlert("✅ Đăng nhập thành công!", "success");
       setTimeout(() => {
-        window.location.href = LOGIN_REDIRECT;
+        window.location.href = getPostLoginRedirect(userWithPlan);
       }, 800);
       return;
     }

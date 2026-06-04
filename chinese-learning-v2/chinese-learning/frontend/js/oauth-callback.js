@@ -21,6 +21,12 @@
   }
   const API_BASE = resolveApiBase();
 
+  function defaultPageForRole(user) {
+    if (user?.role === "admin") return "admin-dashboard.html";
+    if (user?.role === "teacher") return "teacher-dashboard.html";
+    return "lessons.html";
+  }
+
   function showError(msg) {
     document.getElementById("spinner").style.display = "none";
     document.getElementById("msg").textContent = "Đăng nhập thất bại";
@@ -70,6 +76,8 @@
     );
     if (typeof window.setAccessToken === "function") {
       window.setAccessToken(data.token);
+    } else if (data.token) {
+      sessionStorage.setItem("hanyuAccessToken", data.token);
     }
 
     if (!localStorage.getItem("hanyuProgress")) {
@@ -82,7 +90,7 @@
     const redirectTarget =
       localStorage.getItem("oauthRedirect") ||
       localStorage.getItem("payAfterLogin") ||
-      "lessons.html";
+      defaultPageForRole(data.user);
     localStorage.removeItem("oauthRedirect");
     localStorage.removeItem("payAfterLogin");
 

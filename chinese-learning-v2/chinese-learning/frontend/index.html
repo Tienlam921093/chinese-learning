@@ -1660,8 +1660,18 @@
 
       const API_BASE = resolveApiBase();
 
+      function defaultPageForRole(user) {
+        if (user?.role === "admin") return "pages/admin-dashboard.html";
+        if (user?.role === "teacher") return "pages/teacher-dashboard.html";
+        return "pages/lessons.html";
+      }
+
       // ── Helper: đọc token/user từ cả localStorage lẫn sessionStorage ──
       function getToken() {
+        const token =
+          sessionStorage.getItem("hanyuAccessToken") ||
+          localStorage.getItem("hanyuAccessToken");
+        if (token) return token;
         const hasUser =
           localStorage.getItem("hanyuUser") ||
           sessionStorage.getItem("hanyuUser");
@@ -1781,12 +1791,29 @@
         document.getElementById("navUserName").textContent = user.name;
         document.getElementById("navUserAvatar").textContent =
           user.name[0].toUpperCase();
+        const roleHome = defaultPageForRole(user);
+        document.getElementById("navUserBtn").href = roleHome;
+        document.getElementById("navDashBtn").href = roleHome;
+        document.getElementById("navDashBtn").textContent =
+          user.role === "admin" || user.role === "teacher"
+            ? "Quan ly lop"
+            : "Tiep tuc hoc";
+        if (user.role === "admin" || user.role === "teacher") {
+          document
+            .querySelectorAll('a[href="pages/chatbot.html"]')
+            .forEach((link) => {
+              link.style.display = "none";
+            });
+        }
 
         // Hero: nút "Học Ngay" → chuyển thẳng vào lessons
         const heroBtn = document.getElementById("heroPrimaryBtn");
         if (heroBtn) {
-          heroBtn.href = "pages/lessons.html";
-          heroBtn.innerHTML = '<i class="fa fa-book-open"></i>Tiếp Tục Học';
+          heroBtn.href = roleHome;
+          heroBtn.innerHTML =
+            user.role === "admin" || user.role === "teacher"
+              ? '<i class="fa fa-chalkboard-user"></i>Quan Ly Lop'
+              : '<i class="fa fa-book-open"></i>Tiep Tuc Hoc';
         }
 
         // ── CẬP NHẬT NÚT PRICING THEO GÓI ĐÃ MUA ──
@@ -1802,7 +1829,7 @@
           if (!btn) return;
           btn.textContent = label;
           btn.onclick = () => {
-            window.location.href = "pages/lessons.html";
+            window.location.href = defaultPageForRole(getUser());
           };
           btn.classList.remove("btn-r");
           btn.classList.add("btn-o");
@@ -1849,7 +1876,7 @@
         if (plan === "free") {
           // Free: vào register nếu chưa có tài khoản, vào lessons nếu đã đăng nhập
           window.location.href = token
-            ? "pages/lessons.html"
+            ? defaultPageForRole(getUser())
             : "pages/register.html";
           return;
         }

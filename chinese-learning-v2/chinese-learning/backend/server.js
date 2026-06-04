@@ -17,6 +17,8 @@ const {
 
 const app = express();
 
+// Tu day tro xuong la pipeline middleware cua Express: security -> parser -> session -> limiter -> routes.
+
 // App chạy sau nginx reverse proxy (docker compose) nên cần trust proxy
 // để req.ip và express-rate-limit xử lý đúng X-Forwarded-For.
 app.set("trust proxy", 1);
@@ -159,6 +161,8 @@ app.use("/api/chatbot", require("./routes/chatbot.routes"));
 app.use("/api/progress", require("./routes/progress.routes"));
 app.use("/api/payment", require("./routes/payment.routes"));
 app.use("/api/quiz", require("./routes/quiz.routes"));
+app.use("/api/live-classes", require("./routes/liveClass.routes"));
+app.use("/api/admin", require("./routes/admin.routes"));
 
 app.get("/api/health", (req, res) =>
   res.json({ status: "ok", version: "2.1.0" }),
@@ -172,6 +176,7 @@ const { getPool, query } = require("./config/db");
 const { RefreshTokenModel } = require("./models/refreshToken.model");
 
 async function ensureSchema() {
+  // Dam bao cac cot/index moi ton tai khi app start, huu ich khi deploy len DB cu.
   const maxAttempts = 10;
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {
     try {
@@ -238,8 +243,62 @@ async function ensureSchema() {
          END`,
         {},
       );
+      await query(
+        `IF OBJECT_ID('dbo.LiveClasses', 'U') IS NULL
+         BEGIN
+           CREATE TABLE dbo.LiveClasses (
+             id INT IDENTITY(1,1) PRIMARY KEY,
+             teacher_id INT NOT NULL REFERENCES dbo.Users(id),
+             title NVARCHAR(160) NOT NULL,
+             description NVARCHAR(1000) NULL,
+             hsk_level TINYINT NOT NULL,
+             starts_at DATETIME NOT NULL,
+             ends_at DATETIME NOT NULL,
+             meeting_url NVARCHAR(500) NOT NULL,
+             meeting_platform NVARCHAR(20) NOT NULL DEFAULT 'other',
+             capacity INT NOT NULL DEFAULT 30,
+             status NVARCHAR(20) NOT NULL DEFAULT 'scheduled',
+             created_at DATETIME NOT NULL DEFAULT GETDATE(),
+             updated_at DATETIME NOT NULL DEFAULT GETDATE(),
+             CONSTRAINT CK_LiveClasses_hsk CHECK (hsk_level BETWEEN 1 AND 6),
+             CONSTRAINT CK_LiveClasses_capacity CHECK (capacity BETWEEN 1 AND 500),
+             CONSTRAINT CK_LiveClasses_status CHECK (status IN ('scheduled', 'cancelled', 'completed'))
+           );
+         END
+         IF OBJECT_ID('dbo.LiveClassEnrollments', 'U') IS NULL
+         BEGIN
+           CREATE TABLE dbo.LiveClassEnrollments (
+             id INT IDENTITY(1,1) PRIMARY KEY,
+             class_id INT NOT NULL REFERENCES dbo.LiveClasses(id) ON DELETE CASCADE,
+             user_id INT NOT NULL REFERENCES dbo.Users(id) ON DELETE CASCADE,
+             status NVARCHAR(20) NOT NULL DEFAULT 'enrolled',
+             created_at DATETIME NOT NULL DEFAULT GETDATE(),
+             updated_at DATETIME NOT NULL DEFAULT GETDATE(),
+             CONSTRAINT UQ_LiveClassEnrollments_user UNIQUE (class_id, user_id),
+             CONSTRAINT CK_LiveClassEnrollments_status CHECK (status IN ('enrolled', 'cancelled'))
+           );
+         END`,
+        {},
+      );
+      await query(
+        `IF NOT EXISTS (
+           SELECT 1 FROM sys.indexes
+           WHERE name = 'IX_LiveClasses_starts_at' AND object_id = OBJECT_ID('dbo.LiveClasses')
+         )
+         BEGIN
+           CREATE INDEX IX_LiveClasses_starts_at ON dbo.LiveClasses(status, starts_at);
+         END
+         IF NOT EXISTS (
+           SELECT 1 FROM sys.indexes
+           WHERE name = 'IX_LiveClassEnrollments_user' AND object_id = OBJECT_ID('dbo.LiveClassEnrollments')
+         )
+         BEGIN
+           CREATE INDEX IX_LiveClassEnrollments_user ON dbo.LiveClassEnrollments(user_id, status);
+         END`,
+        {},
+      );
       console.log(
-        "[DB] Schema check complete for oauth_display_name, quiz anti-farm columns + indexes",
+        "[DB] Schema check complete for oauth, quiz anti-farm, live classes",
       );
       return;
     } catch (err) {
@@ -255,6 +314,7 @@ async function ensureSchema() {
 // FIX L5: Dọn refresh tokens hết hạn mỗi 6 giờ
 setInterval(
   async () => {
+    // Cleanup dinh ky giup bang RefreshTokens khong phinh to vi token het han.
     try {
       await RefreshTokenModel.cleanup();
       console.log("[CLEANUP] ✅ Đã dọn refresh tokens hết hạn");
@@ -269,6 +329,7 @@ const PORT = process.env.PORT || 5000;
 let server;
 
 (async () => {
+  // Start sequence: kiem tra schema truoc, sau do moi listen HTTP port.
   await ensureSchema();
   server = app.listen(PORT, () =>
     console.log(`[SERVER] ✅ HánYǔ API v2.1 chạy tại port ${PORT}`),

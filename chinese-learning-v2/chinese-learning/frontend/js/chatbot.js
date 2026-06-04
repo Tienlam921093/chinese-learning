@@ -13,6 +13,19 @@
 
 const CHATBOT_API = `${API_BASE}/chatbot/chat`;
 
+function redirectStaffAway() {
+  const user = typeof getUser === "function" ? getUser() : {};
+  if (user?.role === "admin") {
+    location.replace("admin-dashboard.html");
+    return true;
+  }
+  if (user?.role === "teacher") {
+    location.replace("teacher-dashboard.html");
+    return true;
+  }
+  return false;
+}
+
 const MODES = {
   free: "Bạn là 小明, gia sư AI dạy tiếng Trung thân thiện. Trả lời bằng tiếng Việt, kèm chữ Hán + pinyin + nghĩa. Dùng emoji.",
   lesson:
@@ -77,6 +90,7 @@ function sanitizeTextForSpeech(html) {
 
 /* ── INIT ── */
 function init() {
+  if (redirectStaffAway()) return;
   const p = JSON.parse(localStorage.getItem(getProgressKey()) || "{}");
   const xpEl = document.getElementById("xpDisplay");
   const stEl = document.getElementById("streakDisplay");

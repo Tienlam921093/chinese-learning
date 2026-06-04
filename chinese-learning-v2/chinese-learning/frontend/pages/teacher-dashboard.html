@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Quan ly lop | HanYu</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700;900&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="../css/app.css"/>
+  <link rel="stylesheet" href="../css/live-classes.css"/>
+</head>
+<body>
+<div class="app">
+  <div class="sidebar">
+    <div class="sb-top">
+      <a href="../index.html" class="sb-logo">
+        <span class="sb-logo-c">漢</span>
+        <span class="sb-logo-t">HanYu</span>
+      </a>
+      <div class="user-card">
+        <div style="display:flex;align-items:center;gap:.6rem;margin-bottom:.5rem">
+          <div class="user-ava" id="uAva">?</div>
+          <div>
+            <div class="user-name" id="uName">Quan ly</div>
+            <div class="user-sub">Role · <span id="roleLabel">teacher</span></div>
+          </div>
+        </div>
+        <div class="xp-bar"><div class="xp-bar-fill" id="uXPBar" style="width:100%"></div></div>
+      </div>
+    </div>
+    <div class="sb-nav">
+      <a class="sb-link active" href="teacher-dashboard.html"><i class="fa fa-chalkboard-user"></i> Quan ly lop</a>
+      <hr class="sb-divider"/>
+      <a class="sb-link" href="#" onclick="logout()"><i class="fa fa-sign-out-alt"></i> Dang Xuat</a>
+    </div>
+  </div>
+
+  <main class="main">
+    <div class="topbar">
+      <div>
+        <div class="page-title"><i class="fa fa-chalkboard-user text-danger me-2"></i>Quan ly lop truc tuyen</div>
+        <div class="page-date" id="todayDate"></div>
+      </div>
+      <div style="display:flex;gap:.5rem;align-items:center;flex-wrap:wrap">
+        <span class="badge-pill badge-streak" id="topRole">Teacher</span>
+        <span class="badge-pill badge-xp">Live class</span>
+      </div>
+    </div>
+
+    <section class="teacher-panel">
+      <div class="panel-head">
+        <div>
+          <h2>Tao lop moi</h2>
+        </div>
+      </div>
+      <form id="classForm" class="class-form">
+        <label>
+          <span>Ten lop</span>
+          <input name="title" required minlength="3" maxlength="160" placeholder="HSK 1: Luyen hoi thoai co ban"/>
+        </label>
+        <label>
+          <span>Mo ta</span>
+          <textarea name="description" maxlength="1000" rows="3" placeholder="Noi dung, muc tieu, yeu cau truoc buoi hoc"></textarea>
+        </label>
+        <div class="form-grid">
+          <label>
+            <span>HSK</span>
+            <select name="hsk_level">
+              <option value="1">HSK 1</option>
+              <option value="2">HSK 2</option>
+              <option value="3">HSK 3</option>
+              <option value="4">HSK 4</option>
+              <option value="5">HSK 5</option>
+              <option value="6">HSK 6</option>
+            </select>
+          </label>
+          <label>
+            <span>Nen tang</span>
+            <select name="meeting_platform">
+              <option value="meet">Google Meet</option>
+              <option value="zoom">Zoom</option>
+              <option value="jitsi">Jitsi</option>
+              <option value="teams">Teams</option>
+              <option value="other">Khac</option>
+            </select>
+          </label>
+          <label>
+            <span>Bat dau</span>
+            <input name="starts_at" type="datetime-local" required/>
+          </label>
+          <label>
+            <span>Ket thuc</span>
+            <input name="ends_at" type="datetime-local" required/>
+          </label>
+          <label>
+            <span>Suc chua</span>
+            <input name="capacity" type="number" min="1" max="500" value="30"/>
+          </label>
+          <label>
+            <span>Link hoc</span>
+            <input name="meeting_url" type="url" required placeholder="https://meet.google.com/..."/>
+          </label>
+        </div>
+        <div class="form-actions">
+          <span id="formMessage" role="status"></span>
+          <button type="submit" class="live-primary">
+            <i class="fa fa-check"></i>
+            Luu lop
+          </button>
+        </div>
+      </form>
+    </section>
+
+    <section class="toolbar">
+      <button class="tab-btn active" type="button" data-filter="upcoming">Sap toi</button>
+      <button class="tab-btn" type="button" data-filter="all">Tat ca</button>
+      <button class="refresh-btn" type="button" id="refreshBtn" aria-label="Tai lai">
+        <i class="fa fa-rotate"></i>
+      </button>
+    </section>
+
+    <section class="class-grid" id="classGrid">
+      <div class="empty-state">Dang tai lich lop...</div>
+    </section>
+  </main>
+</div>
+
+<script src="../js/deploy-config.js"></script>
+<script src="../js/helpers.js"></script>
+<script src="../js/teacher-dashboard.js"></script>
+</body>
+</html>

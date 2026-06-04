@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin | HanYu</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700;900&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="../css/app.css"/>
+  <link rel="stylesheet" href="../css/admin-dashboard.css"/>
+</head>
+<body>
+<div class="app">
+  <div class="sidebar">
+    <div class="sb-top">
+      <a href="../index.html" class="sb-logo">
+        <span class="sb-logo-c">漢</span>
+        <span class="sb-logo-t">HanYu</span>
+      </a>
+      <div class="user-card">
+        <div style="display:flex;align-items:center;gap:.6rem;margin-bottom:.5rem">
+          <div class="user-ava" id="uAva">A</div>
+          <div>
+            <div class="user-name" id="uName">Admin</div>
+            <div class="user-sub">Role · admin</div>
+          </div>
+        </div>
+        <div class="xp-bar"><div class="xp-bar-fill" style="width:100%"></div></div>
+      </div>
+    </div>
+    <div class="sb-nav">
+      <a class="sb-link active" href="admin-dashboard.html"><i class="fa fa-gauge"></i> Tong quan</a>
+      <a class="sb-link" href="#" data-admin-tab="users"><i class="fa fa-users"></i> Nguoi dung</a>
+      <a class="sb-link" href="#" data-admin-tab="classes"><i class="fa fa-video"></i> Lop hoc</a>
+      <a class="sb-link" href="#" data-admin-tab="payments"><i class="fa fa-credit-card"></i> Thanh toan</a>
+      <hr class="sb-divider"/>
+      <a class="sb-link" href="#" onclick="logout()"><i class="fa fa-sign-out-alt"></i> Dang Xuat</a>
+    </div>
+  </div>
+
+  <main class="main">
+    <div class="topbar">
+      <div>
+        <div class="page-title"><i class="fa fa-gauge text-danger me-2"></i>Admin dashboard</div>
+        <div class="page-date" id="todayDate"></div>
+      </div>
+      <button class="admin-refresh" id="refreshBtn" type="button">
+        <i class="fa fa-rotate"></i>
+        Tai lai
+      </button>
+    </div>
+
+    <div class="admin-tabs">
+      <button class="admin-tab active" data-admin-tab="overview" type="button">Tong quan</button>
+      <button class="admin-tab" data-admin-tab="users" type="button">Nguoi dung</button>
+      <button class="admin-tab" data-admin-tab="classes" type="button">Lop hoc</button>
+      <button class="admin-tab" data-admin-tab="payments" type="button">Thanh toan</button>
+    </div>
+
+    <section class="admin-panel active" id="tab-overview">
+      <div class="metric-grid" id="metricGrid"></div>
+      <div class="report-grid" id="reportGrid"></div>
+    </section>
+
+    <section class="admin-panel" id="tab-users">
+      <div class="admin-toolbar">
+        <select id="roleFilter">
+          <option value="">Tat ca role</option>
+          <option value="student">Student</option>
+          <option value="teacher">Teacher</option>
+          <option value="admin">Admin</option>
+        </select>
+        <input id="userSearch" placeholder="Tim theo ten/email"/>
+        <button class="admin-refresh" id="userSearchBtn" type="button">Tim</button>
+      </div>
+      <div class="admin-table-wrap">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Nguoi dung</th>
+              <th>Role</th>
+              <th>Goi</th>
+              <th>XP</th>
+              <th>Trang thai</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="usersBody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="admin-panel" id="tab-classes">
+      <div class="admin-table-wrap">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Lop</th>
+              <th>Giao vien</th>
+              <th>Thoi gian</th>
+              <th>Hoc vien</th>
+              <th>Trang thai</th>
+            </tr>
+          </thead>
+          <tbody id="classesBody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="admin-panel" id="tab-payments">
+      <div class="admin-table-wrap">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Order</th>
+              <th>Nguoi dung</th>
+              <th>Goi</th>
+              <th>So tien</th>
+              <th>Trang thai</th>
+              <th>Ngay tao</th>
+            </tr>
+          </thead>
+          <tbody id="paymentsBody"></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+</div>
+
+<script src="../js/deploy-config.js"></script>
+<script src="../js/helpers.js"></script>
+<script src="../js/admin-dashboard.js"></script>
+</body>
+</html>

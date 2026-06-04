@@ -1,0 +1,229 @@
+.live-hero {
+  align-items: center;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  display: flex;
+  gap: 1rem;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+  padding: 1.25rem;
+}
+
+.live-hero h1,
+.teacher-panel h2 {
+  font-size: 1.1rem;
+  font-weight: 800;
+  margin: 0 0 .25rem;
+}
+
+.live-hero p,
+.teacher-panel p {
+  color: var(--muted);
+  font-size: .88rem;
+  margin: 0;
+}
+
+.live-primary,
+.tab-btn,
+.refresh-btn,
+.icon-btn,
+.class-action {
+  align-items: center;
+  border: 0;
+  border-radius: 8px;
+  cursor: pointer;
+  display: inline-flex;
+  font-family: var(--font-b);
+  font-weight: 700;
+  gap: .45rem;
+  justify-content: center;
+  min-height: 38px;
+  padding: .55rem .9rem;
+}
+
+.live-primary {
+  background: var(--red);
+  color: #fff;
+}
+
+.teacher-panel {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  padding: 1.25rem;
+}
+
+.panel-head,
+.form-actions,
+.toolbar {
+  align-items: center;
+  display: flex;
+  gap: .75rem;
+  justify-content: space-between;
+}
+
+.icon-btn,
+.refresh-btn {
+  background: #f1f5f9;
+  color: var(--ink);
+  min-width: 38px;
+  padding: 0;
+}
+
+.class-form {
+  display: grid;
+  gap: .85rem;
+  margin-top: 1rem;
+}
+
+.class-form label {
+  display: grid;
+  gap: .35rem;
+}
+
+.class-form span {
+  color: var(--muted);
+  font-size: .78rem;
+  font-weight: 700;
+}
+
+.class-form input,
+.class-form select,
+.class-form textarea {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font: inherit;
+  min-height: 40px;
+  padding: .55rem .7rem;
+  width: 100%;
+}
+
+.form-grid {
+  display: grid;
+  gap: .75rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+#formMessage {
+  color: var(--muted);
+  font-size: .85rem;
+}
+
+.toolbar {
+  margin: 1rem 0;
+  justify-content: flex-start;
+}
+
+.tab-btn {
+  background: #fff;
+  border: 1px solid var(--border);
+  color: var(--muted);
+}
+
+.tab-btn.active {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: #fff;
+}
+
+.refresh-btn {
+  margin-left: auto;
+}
+
+.class-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+}
+
+.class-card {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  display: grid;
+  gap: .85rem;
+  padding: 1rem;
+}
+
+.class-top {
+  align-items: flex-start;
+  display: flex;
+  gap: .75rem;
+  justify-content: space-between;
+}
+
+.class-title {
+  font-size: 1rem;
+  font-weight: 800;
+  line-height: 1.25;
+  margin: 0 0 .3rem;
+}
+
+.class-teacher,
+.class-desc,
+.class-meta {
+  color: var(--muted);
+  font-size: .82rem;
+}
+
+.class-desc {
+  min-height: 2.5em;
+}
+
+.class-badge {
+  background: rgba(220, 38, 38, .1);
+  border-radius: 999px;
+  color: var(--red);
+  flex-shrink: 0;
+  font-size: .72rem;
+  font-weight: 800;
+  padding: .25rem .6rem;
+}
+
+.class-meta {
+  display: grid;
+  gap: .35rem;
+}
+
+.class-actions {
+  display: flex;
+  gap: .5rem;
+  flex-wrap: wrap;
+}
+
+.class-action {
+  background: #f1f5f9;
+  color: var(--ink);
+  flex: 1 1 120px;
+  text-decoration: none;
+}
+
+.class-action.primary {
+  background: var(--red);
+  color: #fff;
+}
+
+.class-action.danger {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.class-action:disabled {
+  cursor: not-allowed;
+  opacity: .55;
+}
+
+@media (max-width: 768px) {
+  .live-hero,
+  .panel-head,
+  .form-actions {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+}

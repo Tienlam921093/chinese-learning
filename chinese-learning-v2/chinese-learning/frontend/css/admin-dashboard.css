@@ -1,0 +1,170 @@
+.admin-refresh,
+.admin-tab,
+.admin-toolbar button,
+.role-select,
+.status-btn {
+  align-items: center;
+  border: 0;
+  border-radius: 8px;
+  display: inline-flex;
+  font-family: var(--font-b);
+  font-weight: 700;
+  gap: .45rem;
+  justify-content: center;
+  min-height: 38px;
+  padding: .5rem .85rem;
+}
+
+.admin-refresh {
+  background: var(--ink);
+  color: #fff;
+}
+
+.admin-tabs {
+  display: flex;
+  gap: .5rem;
+  margin-bottom: 1rem;
+  overflow-x: auto;
+}
+
+.admin-tab {
+  background: #fff;
+  border: 1px solid var(--border);
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.admin-tab.active {
+  background: var(--red);
+  border-color: var(--red);
+  color: #fff;
+}
+
+.admin-panel {
+  display: none;
+}
+
+.admin-panel.active {
+  display: block;
+}
+
+.metric-grid,
+.report-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  margin-bottom: 1rem;
+}
+
+.metric-card,
+.report-card {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem;
+}
+
+.metric-label,
+.report-label {
+  color: var(--muted);
+  font-size: .78rem;
+  font-weight: 700;
+  margin-bottom: .35rem;
+}
+
+.metric-value,
+.report-value {
+  color: var(--ink);
+  font-size: 1.55rem;
+  font-weight: 900;
+}
+
+.admin-toolbar {
+  display: flex;
+  gap: .65rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
+.admin-toolbar input,
+.admin-toolbar select,
+.role-select {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font: inherit;
+  min-height: 38px;
+  padding: .5rem .7rem;
+}
+
+.admin-table-wrap {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow-x: auto;
+}
+
+.admin-table {
+  border-collapse: collapse;
+  min-width: 760px;
+  width: 100%;
+}
+
+.admin-table th,
+.admin-table td {
+  border-bottom: 1px solid var(--border);
+  padding: .8rem;
+  text-align: left;
+  vertical-align: middle;
+}
+
+.admin-table th {
+  color: var(--muted);
+  font-size: .75rem;
+  text-transform: uppercase;
+}
+
+.admin-user-main {
+  font-weight: 800;
+}
+
+.admin-user-sub {
+  color: var(--muted);
+  font-size: .78rem;
+}
+
+.status-pill {
+  border-radius: 999px;
+  display: inline-flex;
+  font-size: .75rem;
+  font-weight: 800;
+  padding: .25rem .6rem;
+}
+
+.status-pill.ok {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.status-pill.warn {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.status-btn {
+  background: #f1f5f9;
+  color: var(--ink);
+}
+
+@media (max-width: 768px) {
+  .admin-toolbar {
+    display: grid;
+  }
+
+  .admin-refresh,
+  .admin-toolbar input,
+  .admin-toolbar select,
+  .admin-toolbar button {
+    width: 100%;
+  }
+}

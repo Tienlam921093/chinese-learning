@@ -18,6 +18,12 @@ function resolveApiBase() {
 }
 const API_BASE = resolveApiBase();
 
+function defaultPageForRole(user) {
+  if (user?.role === "admin") return "admin-dashboard.html";
+  if (user?.role === "teacher") return "teacher-dashboard.html";
+  return "lessons.html";
+}
+
 /* ── Alert ── */
 function showAlert(msg, type = "error") {
   const el = document.getElementById("alertBox");
@@ -48,6 +54,8 @@ function saveAndGo(token, user) {
   sessionStorage.setItem("hanyuUser", JSON.stringify(sessionUser));
   if (typeof window.setAccessToken === "function") {
     window.setAccessToken(token);
+  } else if (token) {
+    sessionStorage.setItem("hanyuAccessToken", token);
   }
   showAlert("🎉 Đăng ký thành công! Đang vào trang học...", "success");
   setTimeout(() => {
@@ -56,7 +64,7 @@ function saveAndGo(token, user) {
       localStorage.removeItem("payAfterLogin");
       window.location.href = _pay;
     } else {
-      window.location.href = "lessons.html";
+      window.location.href = defaultPageForRole(sessionUser);
     }
   }, 900);
 }
