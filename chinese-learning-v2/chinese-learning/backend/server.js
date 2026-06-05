@@ -191,6 +191,81 @@ async function ensureSchema() {
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {
     try {
       await query(
+        `IF COL_LENGTH('dbo.Users', 'token_version') IS NULL
+         BEGIN
+           ALTER TABLE dbo.Users ADD token_version INT NOT NULL CONSTRAINT DF_Users_token_version DEFAULT 1;
+         END
+         IF COL_LENGTH('dbo.Users', 'password_changed_at') IS NULL
+         BEGIN
+           ALTER TABLE dbo.Users ADD password_changed_at DATETIME NULL;
+         END
+         IF COL_LENGTH('dbo.Users', 'plan') IS NULL
+         BEGIN
+           ALTER TABLE dbo.Users ADD [plan] NVARCHAR(20) NOT NULL CONSTRAINT DF_Users_plan DEFAULT 'free';
+         END
+         IF COL_LENGTH('dbo.Users', 'plan_expiry') IS NULL
+         BEGIN
+           ALTER TABLE dbo.Users ADD plan_expiry DATETIME NULL;
+         END`,
+        {},
+      );
+      await query(
+        `IF OBJECT_ID('dbo.RefreshTokens', 'U') IS NULL
+         BEGIN
+           CREATE TABLE dbo.RefreshTokens (
+             id INT IDENTITY(1,1) PRIMARY KEY,
+             token_hash NVARCHAR(128) NOT NULL UNIQUE,
+             user_id INT NOT NULL,
+             expires_at DATETIME NOT NULL,
+             revoked BIT NOT NULL DEFAULT 0,
+             revoked_at DATETIME NULL,
+             created_at DATETIME NOT NULL DEFAULT GETDATE(),
+             user_agent NVARCHAR(500) NULL,
+             ip_address NVARCHAR(45) NULL,
+             CONSTRAINT FK_RefreshTokens_Users FOREIGN KEY (user_id) REFERENCES dbo.Users(id) ON DELETE CASCADE
+           );
+         END
+         IF NOT EXISTS (
+           SELECT 1 FROM sys.indexes
+           WHERE name = 'IX_RefreshTokens_user' AND object_id = OBJECT_ID('dbo.RefreshTokens')
+         )
+         BEGIN
+           CREATE INDEX IX_RefreshTokens_user ON dbo.RefreshTokens(user_id);
+         END
+         IF NOT EXISTS (
+           SELECT 1 FROM sys.indexes
+           WHERE name = 'IX_RefreshTokens_expires' AND object_id = OBJECT_ID('dbo.RefreshTokens')
+         )
+         BEGIN
+           CREATE INDEX IX_RefreshTokens_expires ON dbo.RefreshTokens(expires_at);
+         END`,
+        {},
+      );
+      await query(
+        `IF OBJECT_ID('dbo.PasswordResets', 'U') IS NULL
+         BEGIN
+           CREATE TABLE dbo.PasswordResets (
+             id INT IDENTITY(1,1) PRIMARY KEY,
+             user_id INT NOT NULL,
+             token_hash NVARCHAR(128) NOT NULL UNIQUE,
+             expires_at DATETIME NOT NULL,
+             used BIT NOT NULL DEFAULT 0,
+             used_at DATETIME NULL,
+             created_at DATETIME NOT NULL DEFAULT GETDATE(),
+             ip_address NVARCHAR(45) NULL,
+             CONSTRAINT FK_PasswordResets_Users FOREIGN KEY (user_id) REFERENCES dbo.Users(id) ON DELETE CASCADE
+           );
+         END
+         IF NOT EXISTS (
+           SELECT 1 FROM sys.indexes
+           WHERE name = 'IX_PasswordResets_user' AND object_id = OBJECT_ID('dbo.PasswordResets')
+         )
+         BEGIN
+           CREATE INDEX IX_PasswordResets_user ON dbo.PasswordResets(user_id);
+         END`,
+        {},
+      );
+      await query(
         `IF COL_LENGTH('dbo.Users', 'oauth_display_name') IS NULL
          BEGIN
            ALTER TABLE dbo.Users ADD oauth_display_name NVARCHAR(100) NULL;
