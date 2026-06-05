@@ -65,7 +65,17 @@ app.use(
 );
 
 // FIX A6: CORS — chỉ cho phép localhost trong development
-const corsOrigins = [process.env.FRONTEND_URL].filter(Boolean);
+function parseOrigins(value) {
+  return String(value || "")
+    .split(",")
+    .map((origin) => origin.trim())
+    .filter(Boolean);
+}
+
+const corsOrigins = [
+  ...parseOrigins(process.env.FRONTEND_URL),
+  ...parseOrigins(process.env.CORS_ORIGINS),
+].filter((origin, index, all) => all.indexOf(origin) === index);
 if (process.env.NODE_ENV !== "production") {
   corsOrigins.push(
     "http://localhost:8080",
