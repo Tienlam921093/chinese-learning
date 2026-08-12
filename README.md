@@ -573,11 +573,11 @@ QuizResults    — Kết quả bài kiểm tra
 
 ## Payment Page Auth Flow (Lessons -> Payment)
 
-### Issue da xu ly
+### Issue đã xử lý
 
 Khi user da dang nhap nhung access token het han, click nut "Nang cap" tu lessons co the bi da ve login thay vi vao trang payment.
 
-### Cach xu ly
+### Cách xử lý
 
 - Trong payment page boot flow: luon chay refresh flow truoc khi render.
 - `refreshAccessToken()` uu tien kiem tra token hien tai bang `/auth/me`, chi goi `/auth/refresh` khi can.
