@@ -28,6 +28,7 @@ const LessonModel = {
 
   DEMO_LESSONS,
 
+  // Lay danh sach bai hoc tu DB; neu DB loi thi fallback sang DEMO_LESSONS.
   async getAll({ hsk_level, limit = 50, offset = 0 }) {
     try {
       const where = hsk_level ? 'WHERE hsk_level=@level' : '';
@@ -51,6 +52,7 @@ const LessonModel = {
     }
   },
 
+  // Lay chi tiet mot bai hoc, uu tien DB va fallback demo data.
   async findById(id) {
     const demo = DEMO_LESSONS.find(l => l.id === parseInt(id));
     try {
@@ -65,6 +67,7 @@ const LessonModel = {
     }
   },
 
+  // Hoan thanh bai hoc trong transaction de tranh cong XP nhieu lan khi request song song.
   async completeOnce({ userId, lessonId, score, timeSpent, xpGain }) {
     const p = await getPool();
     const transaction = new sql.Transaction(p);

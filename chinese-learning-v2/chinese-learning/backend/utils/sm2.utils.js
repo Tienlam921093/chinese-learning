@@ -15,10 +15,14 @@
  * @returns {{ easeFactor, intervalDays, repetitions, nextReview }}
  */
 function calculateSM2({ quality, repetitions, easeFactor, intervalDays }) {
+  // newEF là ease factor mới, ban đầu lấy theo ease factor hiện tại.
   let newEF   = easeFactor;
+  // newReps là số lần ôn đúng mới, ban đầu lấy theo số lần hiện tại.
   let newReps = repetitions;
+  // newInterval sẽ được tính dựa trên kết quả trả lời đúng/sai.
   let newInterval;
 
+  // quality từ 3 trở lên được xem là trả lời đạt.
   if (quality >= 3) {
     // Trả lời đúng
     if (repetitions === 0) {
@@ -26,8 +30,10 @@ function calculateSM2({ quality, repetitions, easeFactor, intervalDays }) {
     } else if (repetitions === 1) {
       newInterval = 6;        // Lần 2: ôn lại sau 6 ngày
     } else {
+      // Từ lần thứ 3 trở đi, interval tăng theo ease factor hiện tại.
       newInterval = Math.round(intervalDays * easeFactor);
     }
+    // Trả lời đạt thì tăng số lần ôn đúng liên tiếp.
     newReps = repetitions + 1;
   } else {
     // Trả lời sai → reset về đầu
@@ -37,6 +43,7 @@ function calculateSM2({ quality, repetitions, easeFactor, intervalDays }) {
 
   // Cập nhật ease factor
   // EF' = EF + (0.1 - (5-q) * (0.08 + (5-q) * 0.02))
+  // quality càng thấp thì ease factor càng bị giảm nhiều.
   newEF = easeFactor + (0.1 - (5 - quality) * (0.08 + (5 - quality) * 0.02));
 
   // EF tối thiểu 1.3
@@ -45,9 +52,12 @@ function calculateSM2({ quality, repetitions, easeFactor, intervalDays }) {
   // Giới hạn interval tối đa 365 ngày
   if (newInterval > 365) newInterval = 365;
 
+  // Tạo ngày ôn tiếp theo từ ngày hiện tại.
   const nextReview = new Date();
+  // Cộng thêm số ngày interval mới vào ngày hiện tại.
   nextReview.setDate(nextReview.getDate() + newInterval);
 
+  // Trả về toàn bộ trạng thái mới sau một lần ôn.
   return {
     easeFactor:   newEF,
     intervalDays: newInterval,
@@ -56,4 +66,5 @@ function calculateSM2({ quality, repetitions, easeFactor, intervalDays }) {
   };
 }
 
+// Export hàm tính SM-2 để route/controller khác sử dụng.
 module.exports = { calculateSM2 };

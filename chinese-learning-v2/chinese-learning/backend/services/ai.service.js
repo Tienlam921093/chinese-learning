@@ -2,6 +2,8 @@
  * AI SERVICE — OpenAI / Anthropic Claude
  */
 
+// SYSTEM_PROMPT gom cac chi dan co dinh gui kem moi request AI.
+// Moi mode se bo sung them yeu cau rieng cho cach AI tra loi.
 const SYSTEM_PROMPT = {
   base: `Bạn là 小明 (Xiǎo Míng), gia sư AI dạy tiếng Trung thông thái và thân thiện.
 Nhiệm vụ: Giúp người Việt học tiếng Trung Mandarin (Phổ Thông Thoại).
@@ -26,17 +28,24 @@ QUY TẮC TRẢ LỜI:
 };
 
 const AIService = {
+  // Tao prompt he thong bang cach ghep prompt nen voi prompt cua mode hien tai.
   buildSystemPrompt(mode = "free") {
     return SYSTEM_PROMPT.base + (SYSTEM_PROMPT[mode] || "");
   },
 
+  // Ham chinh de controller goi khi can chat voi AI.
+  // messages la lich su hoi dap; mode quyet dinh AI tra loi theo kieu free/lesson/quiz.
   async chat({ messages, mode = "free" }) {
+    // Chuyen mode thanh system prompt cu the.
     const systemPrompt = this.buildSystemPrompt(mode);
+
+    // Chi gui 10 tin nhan cuoi de request gon hon va tranh vuot gioi han token.
     const history = messages.slice(-10);
 
     // Fallback chain: try providers in order until one succeeds
     const providers = this._getProviderChain();
 
+    // Thu tung nha cung cap AI. Neu nha cung cap dau loi thi tu dong thu fallback.
     for (const provider of providers) {
       try {
         if (provider === "anthropic") {
@@ -49,6 +58,7 @@ const AIService = {
           return await this._callOpenAI(history, systemPrompt);
         }
       } catch (err) {
+        // Ghi log loi cua provider hien tai nhung khong dung luong xu ly.
         console.warn(`[AI] ${provider} failed:`, err.message);
         // Continue to next provider
       }
@@ -60,14 +70,21 @@ const AIService = {
 
   _getProviderChain() {
     // Priority order: configured provider first, then fallbacks
+    // AI_PROVIDER cho phep chon provider uu tien bang bien moi truong.
     const primary = process.env.AI_PROVIDER || "gemini";
+
+    // Loai provider chinh khoi danh sach fallback de khong goi trung lap.
     const fallbacks = ["gemini", "openai", "anthropic"].filter(
       (p) => p !== primary,
     );
+
+    // Provider chinh dung truoc, cac provider du phong dung sau.
     return [primary, ...fallbacks];
   },
 
+  // Goi OpenAI Chat Completions API va tra ve noi dung cau tra loi dau tien.
   async _callOpenAI(messages, systemPrompt) {
+    // fetch gui HTTP request truc tiep toi OpenAI.
     const res = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
       headers: {
@@ -75,20 +92,27 @@ const AIService = {
         Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
       },
       body: JSON.stringify({
+        // Cho phep doi model bang OPENAI_MODEL, neu khong co thi dung gpt-4o-mini.
         model: process.env.OPENAI_MODEL || "gpt-4o-mini",
         max_tokens: 1000,
         temperature: 0.8,
+        // OpenAI nhan system prompt nhu mot message role=system o dau danh sach.
         messages: [{ role: "system", content: systemPrompt }, ...messages],
       }),
     });
+
+    // Neu API tra ve HTTP error, doc message loi va nem Error cho fallback xu ly.
     if (!res.ok) {
       const e = await res.json();
       throw new Error(e.error?.message || `OpenAI error ${res.status}`);
     }
+
+    // Lay noi dung text tu choice dau tien cua OpenAI.
     const data = await res.json();
     return data.choices[0].message.content;
   },
 
+  // Goi Anthropic Messages API va tra ve phan text dau tien.
   async _callAnthropic(messages, systemPrompt) {
     const res = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
@@ -98,23 +122,33 @@ const AIService = {
         "anthropic-version": "2023-06-01",
       },
       body: JSON.stringify({
+        // Model Claude dang duoc co dinh trong code.
         model: "claude-3-5-haiku-20241022",
         max_tokens: 1000,
+        // Anthropic co field system rieng, khong tron vao messages nhu OpenAI.
         system: systemPrompt,
         messages,
       }),
     });
+
+    // Nem loi neu Anthropic khong tra response thanh cong.
     if (!res.ok) {
       const e = await res.json();
       throw new Error(e.error?.message || `Anthropic error ${res.status}`);
     }
+
+    // Anthropic tra content dang mang; phan text dau tien la cau tra loi.
     const data = await res.json();
     return data.content[0].text;
   },
+
+  // Goi Gemini generateContent API va tra ve text cua candidate dau tien.
   async _callGemini(messages, systemPrompt) {
+    // Cho phep doi model bang GEMINI_MODEL, mac dinh dung gemini-2.0-flash.
     const model = process.env.GEMINI_MODEL || "gemini-2.0-flash";
     const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${process.env.GEMINI_API_KEY}`;
 
+    // Gemini dung role "model" cho assistant; cac role khac duoc chuyen thanh "user".
     const contents = messages.map((m) => ({
       role: m.role === "assistant" ? "model" : "user",
       parts: [{ text: m.content }],
@@ -124,6 +158,7 @@ const AIService = {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
+        // system_instruction la noi dat system prompt cua Gemini.
         system_instruction: { parts: [{ text: systemPrompt }] },
         contents,
         generationConfig: {
@@ -133,13 +168,17 @@ const AIService = {
       }),
     });
 
+    // Neu Gemini loi, nem Error de chat() thu provider tiep theo.
     if (!res.ok) {
       const e = await res.json();
       throw new Error(e.error?.message || `Gemini error ${res.status}`);
     }
+
+    // Lay text tu candidate dau tien cua Gemini.
     const data = await res.json();
     return data.candidates[0].content.parts[0].text;
   },
 };
 
+// Xuat service de routes/controllers co the require va su dung.
 module.exports = AIService;

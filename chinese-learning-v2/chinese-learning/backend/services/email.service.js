@@ -5,9 +5,15 @@
 const nodemailer = require("nodemailer");
 const { buildFrontendUrl } = require("../utils/frontend-url.utils");
 
+// Kiem tra mot gia tri cau hinh co phai placeholder/mau chua thay that hay khong.
 function isPlaceholder(value) {
+  // Gia tri rong cung duoc xem la chua cau hinh hop le.
   if (!value) return true;
+
+  // Chuan hoa ve chu thuong de so sanh khong phu thuoc cach viet hoa.
   const normalized = String(value).trim().toLowerCase();
+
+  // Neu config chua cac chuoi mau nay thi coi nhu nguoi dung chua thay bang gia tri that.
   return [
     "your_email@gmail.com",
     "your_gmail_app_password",
@@ -20,21 +26,26 @@ function isPlaceholder(value) {
   ].some((placeholder) => normalized.includes(placeholder));
 }
 
+// Dam bao cac bien SMTP can thiet da co va khong con la gia tri mau.
 function ensureSmtpConfig() {
+  // Thu thap danh sach bien bi thieu de bao loi ro rang hon.
   const missing = [];
   if (!process.env.SMTP_HOST) missing.push("SMTP_HOST");
   if (!process.env.SMTP_USER) missing.push("SMTP_USER");
   if (!process.env.SMTP_PASS) missing.push("SMTP_PASS");
+  // Dung ngay neu thieu cau hinh bat buoc.
   if (missing.length) {
     throw new Error(
       `Thiếu cấu hình email trong backend.env: ${missing.join(", ")}`,
     );
   }
 
+  // Thu thap cac bien van dang dung placeholder.
   const placeholderFields = [];
   if (isPlaceholder(process.env.SMTP_HOST)) placeholderFields.push("SMTP_HOST");
   if (isPlaceholder(process.env.SMTP_USER)) placeholderFields.push("SMTP_USER");
   if (isPlaceholder(process.env.SMTP_PASS)) placeholderFields.push("SMTP_PASS");
+  // Dung ngay neu cau hinh co ve da dien nhung van la gia tri mau.
   if (placeholderFields.length) {
     throw new Error(
       `Cấu hình email đang dùng giá trị placeholder: ${placeholderFields.join(", ")}`,
@@ -42,7 +53,9 @@ function ensureSmtpConfig() {
   }
 }
 
+// Tao Nodemailer transport dua tren cau hinh Gmail hoac SMTP tuy chinh.
 function createTransport() {
+  // Validate truoc khi tao transport de loi cau hinh duoc phat hien som.
   ensureSmtpConfig();
 
   // Gmail
@@ -50,6 +63,7 @@ function createTransport() {
     process.env.SMTP_HOST === "smtp.gmail.com" ||
     process.env.EMAIL_PROVIDER === "gmail"
   ) {
+    // Voi Gmail, Nodemailer co cau hinh service rieng nen khong can tu dien host/port.
     return nodemailer.createTransport({
       service: "gmail",
       auth: {
@@ -60,6 +74,7 @@ function createTransport() {
   }
 
   // SMTP tuỳ chỉnh (Mailgun, SendGrid, v.v.)
+  // Nha cung cap khac Gmail dung host/port/secure tu bien moi truong.
   return nodemailer.createTransport({
     host: process.env.SMTP_HOST,
     port: parseInt(process.env.SMTP_PORT) || 587,
@@ -72,12 +87,16 @@ function createTransport() {
 }
 
 const EmailService = {
+  // Gui email dat lai mat khau, chua link reset co token.
   async sendPasswordReset({ to, name, resetToken }) {
+    // Tao URL frontend cho ca kieu static HTML va router SPA.
     const resetUrl = buildFrontendUrl(
       `/pages/reset-password.html?token=${resetToken}`,
       `/reset-password?token=${resetToken}`,
     );
 
+    // Template HTML hien thi trong email reset mat khau.
+    // ${name} va ${resetUrl} duoc chen truc tiep vao noi dung email.
     const html = `
 <!DOCTYPE html>
 <html lang="vi">
@@ -115,7 +134,10 @@ const EmailService = {
 </body>
 </html>`;
 
+    // Tao transport moi tai thoi diem gui de luon dung cau hinh moi nhat trong env.
     const transport = createTransport();
+
+    // sendMail thuc hien gui email toi nguoi dung.
     await transport.sendMail({
       from: `"HánYǔ" <${process.env.SMTP_USER}>`,
       to,
@@ -125,8 +147,12 @@ const EmailService = {
     });
   },
 
+  // Gui email thong bao sau khi mat khau da duoc doi thanh cong.
   async sendPasswordChanged({ to, name }) {
+    // Dung chung co che SMTP/Gmail nhu email reset password.
     const transport = createTransport();
+
+    // Email nay thong bao rang mat khau da doi va can canh bao neu khong phai nguoi dung thao tac.
     await transport.sendMail({
       from: `"HánYǔ" <${process.env.SMTP_USER}>`,
       to,
@@ -143,4 +169,5 @@ const EmailService = {
   },
 };
 
+// Xuat service de controller auth co the goi cac ham gui email.
 module.exports = EmailService;

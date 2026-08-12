@@ -33,6 +33,7 @@ const PasswordResetModel = {
   },
 
   async findValid(rawToken) {
+    // Token nguoi dung gui len duoc hash lai de so voi ban hash luu trong DB.
     const tokenHash = crypto.createHash('sha256').update(rawToken).digest('hex');
     const r = await query(
       `SELECT pr.id, pr.user_id, u.email, u.name
@@ -45,6 +46,7 @@ const PasswordResetModel = {
   },
 
   async markUsed(rawToken) {
+    // Sau khi reset thanh cong, token phai bi vo hieu hoa de khong dung lai duoc.
     const tokenHash = crypto.createHash('sha256').update(rawToken).digest('hex');
     await query(
       `UPDATE PasswordResets SET used=1, used_at=GETDATE() WHERE token_hash=@hash`,

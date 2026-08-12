@@ -5,11 +5,13 @@ const crypto      = require('crypto');
 const { sql, query } = require('../config/db');
 
 function hashToken(token) {
+  // Khong luu refresh token raw trong DB; chi luu hash de giam rui ro neu DB bi lo.
   return crypto.createHash('sha256').update(token).digest('hex');
 }
 
 const RefreshTokenModel = {
 
+  // Luu refresh token moi sau login/OAuth/refresh rotation.
   async save({ token, userId, expiresAt, userAgent, ipAddress }) {
     const hash = hashToken(token);
     await query(
@@ -25,6 +27,7 @@ const RefreshTokenModel = {
     );
   },
 
+  // Tim refresh token trong DB bang hash cua token client gui len.
   async find(token) {
     const hash = hashToken(token);
     const r = await query(
@@ -35,6 +38,7 @@ const RefreshTokenModel = {
     return r.recordset[0] || null;
   },
 
+  // Thu hoi mot refresh token cu the, thuong dung khi logout.
   async revoke(token) {
     const hash = hashToken(token);
     await query(

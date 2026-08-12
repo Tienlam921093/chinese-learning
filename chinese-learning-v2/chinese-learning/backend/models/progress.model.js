@@ -9,6 +9,7 @@ const UserModel = require('./user.model');
 
 const ProgressModel = {
 
+  // Lay cac chi so tong quan cua user: XP, streak, HSK level va lan login gan nhat.
   async getByUser(userId) {
     const r = await query(
       `SELECT xp, streak, hsk_level, last_login FROM Users WHERE id=@uid`,
@@ -17,6 +18,7 @@ const ProgressModel = {
     return r.recordset[0] || null;
   },
 
+  // Tra ve danh sach lesson_id da hoan thanh de frontend danh dau bai hoc.
   async getCompletedLessons(userId) {
     const r = await query(
       `SELECT lesson_id FROM UserProgress WHERE user_id=@uid AND completed=1`,
@@ -27,6 +29,7 @@ const ProgressModel = {
 
   // FIX N13: Đã xóa addXP duplicate — dùng UserModel.addXP
 
+  // Ghi nhan mot bai hoc da hoan thanh va cong XP tuong ung voi diem.
   async completeLesson(userId, lessonId, score = 100, timeSpent = 0) {
     await query(
       `MERGE UserProgress AS target
@@ -49,4 +52,3 @@ const ProgressModel = {
 };
 
 module.exports = ProgressModel;
-

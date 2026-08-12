@@ -1,3 +1,4 @@
+// Danh sach bai hoc local dung de seed/fallback khi DB chua co du lieu.
 const LESSONS = [
   {
     id: 1,
@@ -188,6 +189,7 @@ const LESSONS = [
   },
 ];
 
+// WORD_BANK gom tu vung theo lesson id; makeVocab se bien cac mang nay thanh object VOCABULARY day du.
 const WORD_BANK = {
   1: [
     "你好",
@@ -630,6 +632,7 @@ const WORD_BANK = {
 
 const fs = require("fs");
 const path = require("path");
+// Package pinyin la optional dependency; neu thieu thi app van chay, chi khong sinh pinyin tu dong.
 let pinyin;
 try {
   pinyin = require("pinyin");
@@ -647,10 +650,12 @@ try {
   MEANINGS = {};
 }
 
+// Sinh tone mau theo vi tri tu de vocabulary fallback co field tone.
 function toneFor(index) {
   return (index % 4) + 1;
 }
 
+// Chuyen hanzi sang pinyin neu package pinyin kha dung.
 function toPinyin(hanzi) {
   if (!pinyin) return "";
   try {
@@ -661,6 +666,7 @@ function toPinyin(hanzi) {
   }
 }
 
+// Tao mang VOCABULARY tu LESSONS + WORD_BANK + MEANINGS.
 function makeVocab() {
   let id = 1;
   return LESSONS.flatMap((lesson) =>
@@ -722,6 +728,7 @@ const GRAMMAR_BY_LEVEL = {
   ],
 };
 
+// Lay mau ngu phap theo HSK level va gan note rieng cho lesson.
 function makeGrammarForLesson(lesson) {
   const base = GRAMMAR_BY_LEVEL[lesson.hsk_level] || GRAMMAR_BY_LEVEL[1];
   return base.map((g) => ({
@@ -730,6 +737,7 @@ function makeGrammarForLesson(lesson) {
   }));
 }
 
+// Tra ve noi dung day du cho mot bai hoc: metadata, grammar, examples, listening, keywords.
 function getLessonContent(lessonId) {
   const lesson = LESSONS.find((l) => l.id === Number(lessonId));
   if (!lesson) return null;

@@ -27,6 +27,7 @@ const ACCESS_COOKIE_OPTS = {
 };
 
 function clearLegacyAuthCookies(res) {
+  // Xoa cookie o path cu de tranh browser gui hai cookie trung ten.
   res.clearCookie("refreshToken", { path: "/api/auth" });
   res.clearCookie("accessToken", { path: "/api" });
 }
@@ -37,6 +38,7 @@ const authCodes = new Map();
 const AUTH_CODES_MAX = 1000;
 
 function cleanupExpiredCodes() {
+  // Auth code chi song ngan han va chi dung mot lan.
   const now = Date.now();
   for (const [code, data] of authCodes) {
     if (now > data.expiresAt || data.used) authCodes.delete(code);
@@ -44,6 +46,7 @@ function cleanupExpiredCodes() {
 }
 
 function addAuthCode(code, data) {
+  // Map luu in-memory nen can gioi han kich thuoc de tranh tang RAM vo han.
   // Cleanup trÆ°á»›c náº¿u vÆ°á»£t ngÆ°á»¡ng
   if (authCodes.size >= AUTH_CODES_MAX) {
     cleanupExpiredCodes();
@@ -98,6 +101,7 @@ function logOAuthFailure(provider, err, req) {
 }
 
 function oauthCallback(provider, failureError) {
+  // Tao callback middleware chung cho Google/Facebook de giam lap logic.
   return (req, res, next) => {
     passport.authenticate(provider, (err, user, info) => {
       if (err) {
@@ -133,6 +137,7 @@ function oauthCallback(provider, failureError) {
  * Táº¡o auth code táº¡m (60 giÃ¢y), redirect frontend kÃ¨m code thay vÃ¬ token
  */
 function handleOAuthSuccess(req, res) {
+  // Sau OAuth thanh cong, backend tao auth code tam thay vi dua token len URL.
   if (!req.user) {
     return res.redirect(
       buildFrontendUrl(
@@ -165,6 +170,7 @@ function handleOAuthSuccess(req, res) {
  */
 router.post("/oauth/exchange", async (req, res) => {
   try {
+    // Frontend gui auth code mot lan de doi lay access/refresh token.
     const { code } = req.body;
     if (!code) return res.status(400).json({ message: "Thiáº¿u auth code" });
 

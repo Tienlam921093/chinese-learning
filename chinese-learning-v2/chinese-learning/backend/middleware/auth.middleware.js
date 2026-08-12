@@ -9,6 +9,7 @@ const TokenService = require("../services/token.service");
 const { sql, query } = require("../config/db");
 
 async function authenticate(req, res, next) {
+  // Uu tien token trong Authorization header, fallback sang httpOnly cookie.
   const authHeader = req.headers["authorization"];
   const bearerToken = authHeader?.startsWith("Bearer ")
     ? authHeader.split(" ")[1]
@@ -58,6 +59,7 @@ async function authenticate(req, res, next) {
 
 // Tuỳ chọn — không bắt buộc auth nhưng decode nếu có token
 async function optionalAuth(req, res, next) {
+  // Middleware nay khong reject request neu token thieu/sai; no chi gan req.user khi token hop le.
   const authHeader = req.headers["authorization"];
   const bearerToken = authHeader?.startsWith("Bearer ")
     ? authHeader.split(" ")[1]
@@ -79,6 +81,7 @@ async function optionalAuth(req, res, next) {
 }
 
 function requireRole(...roles) {
+  // Factory middleware: truyen vao danh sach role duoc phep, vi du requireRole("admin").
   return (req, res, next) => {
     if (!req.user) return res.status(401).json({ message: "Chưa xác thực" });
     if (!roles.includes(req.user.role))

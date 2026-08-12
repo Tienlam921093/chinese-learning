@@ -9,6 +9,7 @@ const { VOCABULARY } = require('../data/learningData');
 const VocabularyModel = {
 
   /** Query từ vựng từ DB, trả null nếu DB fail */
+  // Lay danh sach tu vung theo filter; route se fallback local neu ham nay tra null.
   async getAll({ hsk_level, lesson_id, category, search, limit = 50, offset = 0 }) {
     try {
       const conditions = ['1=1'];
@@ -58,6 +59,7 @@ const VocabularyModel = {
   },
 
   /** Lấy review record hiện tại của user+vocab */
+  // Lay trang thai on tap hien tai cua mot user voi mot tu vung.
   async getReviewRecord(userId, vocabId) {
     const r = await query(
       `SELECT ease_factor, interval_days, repetitions, next_review
@@ -71,6 +73,7 @@ const VocabularyModel = {
   },
 
   /** Upsert review record */
+  // Luu ket qua on tap SM-2: cap nhat neu da co, tao moi neu chua co.
   async saveReview({ userId, vocabId, quality, easeFactor, intervalDays, repetitions, nextReview }) {
     await query(
       `MERGE VocabReviews AS t
@@ -99,6 +102,7 @@ const VocabularyModel = {
   },
 
   /** Lấy flashcards cần ôn tập (SM-2: next_review <= now) */
+  // Lay cac flashcard den han on tap, sap xep uu tien the qua han som nhat.
   async getDueFlashcards(userId, hskLevel, lessonId, count) {
     try {
       const conditions = ['vr.user_id = @uid', 'vr.next_review <= GETDATE()'];
@@ -134,6 +138,7 @@ const VocabularyModel = {
   },
 
   /** Filter từ in-memory fallback data */
+  // Loc tu vung tu data local khi DB khong san sang.
   filterLocal({ hsk_level, lesson_id, category, search }) {
     let vocab = [...VOCABULARY];
     if (hsk_level) vocab = vocab.filter(v => v.hsk_level === Number(hsk_level));

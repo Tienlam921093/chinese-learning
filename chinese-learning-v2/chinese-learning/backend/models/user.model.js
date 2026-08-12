@@ -4,6 +4,7 @@
 const { sql, query } = require("../config/db");
 
 const UserModel = {
+  // Tim user dang nhap bang email/password; bo qua account OAuth khong co mat khau.
   async findByEmail(email) {
     const r = await query(
       `SELECT id, name, email, password_hash, role, token_version, oauth_provider, oauth_display_name, hsk_level, xp, streak,
@@ -17,6 +18,7 @@ const UserModel = {
     return r.recordset[0] || null;
   },
 
+  // Lay profile user theo id, thuong dung sau khi verify token.
   async findById(id) {
     const r = await query(
       `SELECT id, name, email, role, token_version, oauth_provider, oauth_display_name, hsk_level, xp, streak,
@@ -28,6 +30,7 @@ const UserModel = {
     return r.recordset[0] || null;
   },
 
+  // Kiem tra email da duoc dung cho password account hay chua.
   async emailExists(email) {
     const r = await query(
       `SELECT id FROM Users
@@ -41,6 +44,7 @@ const UserModel = {
     return r.recordset.length > 0;
   },
 
+  // Tao user dang ky bang email/password voi gia tri mac dinh cho hoc vien moi.
   async create({ name, email, passwordHash }) {
     const r = await query(
       `INSERT INTO Users (name, email, password_hash, role, hsk_level, xp, streak, created_at)
@@ -55,12 +59,14 @@ const UserModel = {
     return r.recordset[0];
   },
 
+  // Cap nhat lan dang nhap cuoi de theo doi hoat dong user.
   async updateLastLogin(id) {
     await query(`UPDATE Users SET last_login = GETDATE() WHERE id = @id`, {
       id: { type: sql.Int, value: id },
     });
   },
 
+  // Cap nhat goi dich vu sau khi thanh toan thanh cong.
   async updatePlan(userId, plan, expiry) {
     await query(
       `UPDATE Users SET [plan]=@plan, plan_expiry=@exp, updated_at=GETDATE() WHERE id=@id`,
@@ -72,6 +78,7 @@ const UserModel = {
     );
   },
 
+  // Cap nhat ten hien thi cho account dang nhap bang mat khau.
   async updateName(id, name) {
     await query(
       `UPDATE Users SET name=@name, updated_at=GETDATE() WHERE id=@id`,
@@ -82,6 +89,7 @@ const UserModel = {
     );
   },
 
+  // Cap nhat ten hien thi rieng cho account OAuth.
   async updateOAuthDisplayName(id, name) {
     await query(
       `UPDATE Users SET oauth_display_name=@name, updated_at=GETDATE() WHERE id=@id`,
@@ -92,6 +100,7 @@ const UserModel = {
     );
   },
 
+  // Luu hash mat khau moi, khong bao gio luu plain password.
   async updatePassword(id, newHash) {
     await query(
       `UPDATE Users SET password_hash=@hash, updated_at=GETDATE() WHERE id=@id`,
@@ -102,6 +111,7 @@ const UserModel = {
     );
   },
 
+  // Lay password hash hien tai de so sanh khi doi mat khau.
   async getPasswordHash(id) {
     const r = await query(`SELECT password_hash FROM Users WHERE id=@id`, {
       id: { type: sql.Int, value: id },
@@ -109,6 +119,7 @@ const UserModel = {
     return r.recordset[0]?.password_hash || null;
   },
 
+  // Cong XP vao tong XP cua user.
   async addXP(userId, xp) {
     await query(`UPDATE Users SET xp=xp+@xp WHERE id=@uid`, {
       xp: { type: sql.Int, value: xp },
@@ -116,6 +127,7 @@ const UserModel = {
     });
   },
 
+  // Lay bang xep hang user dang active theo XP giam dan.
   async getLeaderboard(limit = 50) {
     const r = await query(
       `SELECT TOP (@lim) id, name, hsk_level, xp, streak, ISNULL([plan],'free') AS [plan]
@@ -125,6 +137,7 @@ const UserModel = {
     return r.recordset;
   },
 
+  // Tim account OAuth theo provider/providerId; neu chua co thi tao account moi.
   async findOrCreateOAuth({ name, email, provider, providerId, avatarUrl }) {
     // BƯỚC 1: Tìm theo oauth_provider + oauth_provider_id (chính xác nhất)
     // Đây là lookup duy nhất đúng — KHÔNG bao giờ link theo email

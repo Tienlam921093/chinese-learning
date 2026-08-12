@@ -16,6 +16,7 @@ const { calculateSM2 } = require('../utils/sm2.utils');
 // ═══════════════════════════════════════════════════════
 router.get('/', optionalAuth, async (req, res) => {
   try {
+    // Query params dieu khien filter va phan trang danh sach tu vung.
     const { hsk_level, lesson_id, category, search } = req.query;
     const limit  = Math.min(Number(req.query.limit  || 999), 500);
     const offset = Math.max(Number(req.query.offset  || 0), 0);
@@ -42,6 +43,7 @@ router.get('/', optionalAuth, async (req, res) => {
 // ═══════════════════════════════════════════════════════
 router.get('/flashcard', optionalAuth, async (req, res) => {
   try {
+    // count gioi han so flashcard tra ve, tranh client yeu cau qua nhieu.
     const count = Math.min(Number(req.query.count || 20), 100);
     const { hsk_level, lesson_id } = req.query;
 
@@ -72,6 +74,7 @@ router.get('/flashcard', optionalAuth, async (req, res) => {
 // ═══════════════════════════════════════════════════════
 router.post('/:id/review', authenticate, async (req, res) => {
   try {
+    // id la vocab id tren URL, quality la diem tu 0-5 do client gui len.
     const vocabId = parseInt(req.params.id);
     const quality = Math.max(0, Math.min(5, parseInt(req.body.quality) || 0));
 

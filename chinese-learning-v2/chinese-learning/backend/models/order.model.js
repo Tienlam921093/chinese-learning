@@ -5,6 +5,7 @@ const { sql, query } = require('../config/db');
 
 const OrderModel = {
 
+  // Tao order moi o trang thai pending truoc khi chuyen user sang cong thanh toan.
   async create({ orderId, userId, plan, amount, method }) {
     await query(
       `INSERT INTO Orders (order_id, user_id, [plan], amount, payment_method, status, created_at)
@@ -19,6 +20,7 @@ const OrderModel = {
     );
   },
 
+  // Tim order theo ma order, dung cho callback tu cong thanh toan.
   async findById(orderId) {
     const r = await query(
       `SELECT order_id, user_id, [plan], amount, status, created_at, paid_at
@@ -28,6 +30,7 @@ const OrderModel = {
     return r.recordset[0] || null;
   },
 
+  // Tim order theo ca user de tranh user nay xem order cua user khac.
   async findByIdAndUser(orderId, userId) {
     const r = await query(
       `SELECT order_id, user_id, [plan], amount, status, created_at, paid_at
@@ -40,6 +43,7 @@ const OrderModel = {
     return r.recordset[0] || null;
   },
 
+  // Danh dau order thanh cong va luu thoi diem thanh toan.
   async markPaid(orderId) {
     await query(
       `UPDATE Orders SET status='paid', paid_at=GETDATE() WHERE order_id=@oid`,
@@ -47,6 +51,7 @@ const OrderModel = {
     );
   },
 
+  // Danh dau order that bai khi cong thanh toan tra ve loi/huy.
   async markFailed(orderId) {
     await query(
       `UPDATE Orders SET status='failed' WHERE order_id=@oid`,
