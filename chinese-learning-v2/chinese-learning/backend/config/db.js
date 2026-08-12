@@ -25,7 +25,7 @@ const config = {
   password: env.DB_PASSWORD,
   options: {
     // Trong Docker network nội bộ, project này không bắt buộc encrypt kết nối SQL Server.
-    encrypt: false, // Docker SQL Server không cần encrypt
+    encrypt: true, // Docker SQL Server không cần encrypt
     // Cho phép tin certificate tự ký, hữu ích khi SQL Server chạy local/Docker.
     trustServerCertificate: true, // Trust self-signed cert trong Docker
     // Tùy chọn thường dùng với SQL Server để query/procedure hoạt động ổn định hơn.
