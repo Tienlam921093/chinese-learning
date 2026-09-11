@@ -82,11 +82,11 @@ const AdminDataModel = {
               COALESCE(e.enrolled_count, 0) AS enrolled_count
        FROM LiveClasses c
        INNER JOIN Users u ON u.id = c.teacher_id
-       OUTER APPLY (
+       LEFT JOIN LATERAL (
          SELECT COUNT(*) AS enrolled_count
          FROM LiveClassEnrollments le
          WHERE le.class_id = c.id AND le.status = 'enrolled'
-       ) e
+       ) e ON TRUE
        ORDER BY c.starts_at DESC, c.id DESC
        OFFSET @offset ROWS FETCH NEXT @limit ROWS ONLY`,
       {
@@ -118,11 +118,11 @@ const AdminDataModel = {
   async reports() {
     const result = await query(
       `SELECT
-         (SELECT COUNT(*) FROM Users WHERE created_at >= DATEADD(day, -7, GETDATE())) AS new_users_7d,
-         (SELECT COUNT(*) FROM LiveClasses WHERE starts_at >= GETDATE() AND status = 'scheduled') AS upcoming_classes,
+         (SELECT COUNT(*) FROM Users WHERE created_at >= CURRENT_TIMESTAMP - INTERVAL '7 days') AS new_users_7d,
+         (SELECT COUNT(*) FROM LiveClasses WHERE starts_at >= CURRENT_TIMESTAMP AND status = 'scheduled') AS upcoming_classes,
          (SELECT COUNT(*) FROM LiveClassEnrollments WHERE status = 'enrolled') AS live_enrollments,
-         (SELECT COUNT(*) FROM QuizResults WHERE created_at >= DATEADD(day, -7, GETDATE())) AS quiz_attempts_7d,
-         (SELECT COALESCE(SUM(amount), 0) FROM Orders WHERE status = 'paid' AND paid_at >= DATEADD(day, -30, GETDATE())) AS revenue_30d`,
+         (SELECT COUNT(*) FROM QuizResults WHERE created_at >= CURRENT_TIMESTAMP - INTERVAL '7 days') AS quiz_attempts_7d,
+         (SELECT COALESCE(SUM(amount), 0) FROM Orders WHERE status = 'paid' AND paid_at >= CURRENT_TIMESTAMP - INTERVAL '30 days') AS revenue_30d`,
       {},
     );
     return result.recordset[0];

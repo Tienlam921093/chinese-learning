@@ -92,18 +92,12 @@ const LessonModel = {
       saveReq.input('score', sql.Int, score);
       saveReq.input('time', sql.Int, timeSpent);
       await saveReq.query(
-        `MERGE UserProgress AS t
-         USING (VALUES (@uid,@lid)) AS s(user_id,lesson_id)
-         ON t.user_id=s.user_id AND t.lesson_id=s.lesson_id
-         WHEN MATCHED THEN UPDATE SET
-           completed=1,
-           score=@score,
-           time_spent=@time,
-           attempts=attempts+1,
-           updated_at=GETDATE()
-         WHEN NOT MATCHED THEN INSERT
-           (user_id,lesson_id,completed,score,time_spent,created_at,updated_at)
-           VALUES (@uid,@lid,1,@score,@time,GETDATE(),GETDATE());`
+        `INSERT INTO UserProgress
+           (user_id,lesson_id,completed,score,time_spent,attempts,created_at,updated_at)
+         VALUES (@uid,@lid,TRUE,@score,@time,1,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP)
+         ON CONFLICT (user_id, lesson_id) DO UPDATE SET
+           completed=TRUE, score=EXCLUDED.score, time_spent=EXCLUDED.time_spent,
+           attempts=UserProgress.attempts+1, updated_at=CURRENT_TIMESTAMP`
       );
 
       if (!alreadyCompleted && xpGain > 0) {

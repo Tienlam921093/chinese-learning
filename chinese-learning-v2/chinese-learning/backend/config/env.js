@@ -40,12 +40,10 @@ function readSecret(key, required = false) {
 
 // ── Validate khi khởi động ──
 function validateEnv() {
-  const REQUIRED = [
-    "JWT_SECRET",
-    "JWT_REFRESH_SECRET",
-    "DB_PASSWORD",
-    "SESSION_SECRET",
-  ];
+  const REQUIRED = ["JWT_SECRET", "JWT_REFRESH_SECRET", "SESSION_SECRET"];
+  // A managed PostgreSQL provider normally supplies DATABASE_URL, so individual
+  // DB credentials are only mandatory when that URL is absent.
+  if (!process.env.DATABASE_URL) REQUIRED.push("DB_PASSWORD");
   const missing = REQUIRED.filter((k) => !readSecret(k));
   if (missing.length > 0) {
     throw new Error(
@@ -85,11 +83,11 @@ module.exports = {
   NODE_ENV: process.env.NODE_ENV || "development",
 
   // Database
-  DB_SERVER: process.env.DB_SERVER || "localhost",
-  DB_PORT: parseInt(process.env.DB_PORT) || 1433,
-  DB_NAME: process.env.DB_NAME || "HanYuDB",
-  DB_USER: readSecret("DB_USER") || "sa",
-  DB_PASSWORD: readSecret("DB_PASSWORD", true),
+  DB_HOST: process.env.DB_HOST || "localhost",
+  DB_PORT: parseInt(process.env.DB_PORT) || 5432,
+  DB_NAME: process.env.DB_NAME || "hanyudb",
+  DB_USER: readSecret("DB_USER") || "hanyu_app",
+  DB_PASSWORD: readSecret("DB_PASSWORD", !process.env.DATABASE_URL),
 
   // JWT
   JWT_SECRET: readSecret("JWT_SECRET", true),

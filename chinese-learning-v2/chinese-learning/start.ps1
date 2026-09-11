@@ -25,7 +25,7 @@ if (-not $dockerRunning) {
 }
 
 # Khoi dong containers (toan bo stack)
-Write-Host " [1/3] Khoi dong full stack (sqlserver, backend, frontend)..." -ForegroundColor Green
+Write-Host " [1/3] Khoi dong full stack (PostgreSQL, backend, frontend)..." -ForegroundColor Green
 # Dùng force-recreate để nạp lại env và image nếu cần
 docker compose up -d --force-recreate
 
@@ -35,9 +35,9 @@ if ($LASTEXITCODE -ne 0) {
     exit 1
 }
 
-# Doi services san sang (tăng thời gian để SQL Server có thể khởi động)
-Write-Host " [2/3] Doi services khoi dong (15 giay)..." -ForegroundColor Green
-Start-Sleep -Seconds 15
+# Doi services san sang
+Write-Host " [2/3] Doi services khoi dong (10 giay)..." -ForegroundColor Green
+Start-Sleep -Seconds 10
 
 # Mo trinh duyet (frontend)
 Write-Host " [3/3] Mo trinh duyet..." -ForegroundColor Green

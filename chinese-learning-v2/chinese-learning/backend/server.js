@@ -99,7 +99,7 @@ app.use(morgan(process.env.NODE_ENV === "production" ? "combined" : "dev"));
 
 // ── Session — Chỉ dùng cho OAuth redirect flow ──
 // FIX M1: MemoryStore chấp nhận được vì session chỉ tồn tại ~60 giây cho OAuth
-// Nếu scale nhiều instance → chuyển sang connect-mssql-v2 hoặc connect-redis
+// Nếu scale nhiều instance → chuyển session store sang Redis.
 app.use(
   session({
     secret: process.env.SESSION_SECRET,
@@ -182,10 +182,13 @@ app.get("/api/health", (req, res) =>
 app.use(notFoundHandler);
 app.use(globalErrorHandler);
 
-const { getPool, query } = require("./config/db");
+const { pool, query } = require("./config/db");
 const { RefreshTokenModel } = require("./models/refreshToken.model");
 
-async function ensureSchema() {
+// Deprecated schema upgrader retained only as migration history. The PostgreSQL
+// schema is installed once with database/postgres-init.sql before first deploy.
+// eslint-disable-next-line no-unused-vars
+async function ensureDeprecatedSchema() {
   // Dam bao cac cot/index moi ton tai khi app start, huu ich khi deploy len DB cu.
   const maxAttempts = 10;
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {
@@ -396,6 +399,11 @@ async function ensureSchema() {
   }
 }
 
+async function ensureSchema() {
+  await query("SELECT 1");
+  console.log("[DB] PostgreSQL connection verified");
+}
+
 // FIX L5: Dọn refresh tokens hết hạn mỗi 6 giờ
 setInterval(
   async () => {
@@ -429,8 +437,7 @@ function gracefulShutdown(signal) {
   console.log(`[SERVER] ${signal} received — shutting down gracefully...`);
   server.close(async () => {
     try {
-      const pool = await getPool();
-      await pool.close();
+      await pool.end();
       console.log("[DB] Pool closed");
     } catch {}
     process.exit(0);

@@ -1,6 +1,6 @@
 # 漢語學習 HánYǔ — Website Học Tiếng Trung
 
-> **Full-stack Learning Platform** | MVC Backend · JWT Auth · AI Chatbot · Spaced Repetition · SQL Server 2022 · Docker
+> **Full-stack Learning Platform** | MVC Backend · JWT Auth · AI Chatbot · Spaced Repetition · PostgreSQL · Docker
 
 **🎯 Highlight**: Production-ready **MVC + RESTful API** backend (Node.js/Express) với authentication, role-based access, token rotation, comprehensive error handling.
 
@@ -40,7 +40,7 @@
          │
          ↓
    ┌─────────────────────────────────────────────┐
-   │   **DATABASE (SQL Server 2022)**             │
+   │   **DATABASE (PostgreSQL)**                  │
    │   - Users, Lessons, Vocabulary               │
    │   - Progress (Spaced Repetition)             │
    │   - RefreshTokens (Token Rotation)           │
@@ -123,7 +123,7 @@ chinese-learning/
 │   ├── 📄 Dockerfile               # Docker image cho backend (Node 20 Alpine)
 │   ├── 📄 package.json             # NPM dependencies
 │   ├── 📂 config/
-│   │   └── 📄 db.js                # Kết nối SQL Server 2022 (mssql pool)
+│   │   └── 📄 db.js                # Kết nối PostgreSQL (pg pool)
 │   ├── 📂 middleware/
 │   │   └── 📄 auth.middleware.js   # JWT Bearer Token verification
 │   └── 📂 routes/
@@ -134,16 +134,15 @@ chinese-learning/
 │       └── 📄 progress.routes.js   # GET/POST /progress/xp
 │
 ├── 📂 database/
-│   └── 📄 init.sql                 # SQL Server 2022 — tạo DB, bảng, seed data
+│   └── 📄 postgres-init.sql        # PostgreSQL — tạo DB, bảng, seed data
 │
 ├── 📂 secrets/
 │   ├── 📄 backend.env.example      # Template biến môi trường backend
-│   └── 📄 sqlserver.env.example    # Template biến môi trường SQL Server
 │
 ├── 📂 nginx/
 │   └── 📄 nginx.conf               # Nginx reverse proxy config
 │
-├── 📄 docker-compose.yml           # Orchestrate: SQL Server + Backend + Frontend
+├── 📄 docker-compose.yml           # Orchestrate: PostgreSQL + Backend + Frontend
 └── 📄 README.md                    # Tài liệu này
 ```
 
@@ -159,8 +158,8 @@ chinese-learning/
 | **Font**         | Google Fonts (Noto Serif SC)          | Hiển thị chữ Hán đẹp                 |
 | **Icons**        | Font Awesome 6                        | Biểu tượng                           |
 | **Backend**      | Node.js 20 + Express 4                | RESTful API server                   |
-| **Database**     | Microsoft SQL Server 2022             | Lưu trữ dữ liệu                      |
-| **SQL Driver**   | mssql (npm)                           | Kết nối SQL Server từ Node.js        |
+| **Database**     | PostgreSQL 16                         | Lưu trữ dữ liệu                      |
+| **SQL Driver**   | pg (node-postgres)                    | Kết nối PostgreSQL từ Node.js        |
 | **Auth**         | JWT (jsonwebtoken) + bcryptjs         | Xác thực người dùng                  |
 | **AI Chatbot**   | OpenAI GPT-4o-mini / Anthropic Claude | AI Tutor tiếng Trung                 |
 | **Container**    | Docker + Docker Compose               | Đóng gói & deploy                    |
@@ -217,7 +216,6 @@ git clone <repo>
 cd chinese-learning
 
 # 2. Copy env templates
-cp secrets/sqlserver.env.example secrets/sqlserver.env
 cp secrets/backend.env.example secrets/backend.env
 
 # 3. Edit secrets/backend.env and add ONE of these AI providers:
@@ -229,13 +227,10 @@ OPENAI_API_KEY=<OPENAI_API_KEY>
 AI_PROVIDER=anthropic
 ANTHROPIC_API_KEY=<ANTHROPIC_API_KEY>
 
-# 4. Start all services (SQL Server + Backend + Frontend + Nginx)
+# 4. Start all services (PostgreSQL + Backend + Frontend + Nginx)
 docker compose up -d
 
-# 5. Wait ~60sec for SQL Server to be ready, then init database:
-docker exec hanyu-sqlserver /opt/mssql-tools/bin/sqlcmd \
-  -S localhost -U sa -P "<SQL_SA_PASSWORD>" \
-  -i /docker-entrypoint-initdb.d/init.sql
+# 5. PostgreSQL automatically runs database/postgres-init.sql on first start.
 
 # 6. Access:
 #    - Frontend: http://localhost:8080
@@ -251,12 +246,11 @@ docker exec hanyu-sqlserver /opt/mssql-tools/bin/sqlcmd \
 ### Option B: Local Node.js (For Backend Development)
 
 ```bash
-# 1. Ensure SQL Server 2022 is running (local or Docker)
-docker run -e 'ACCEPT_EULA=Y' -e 'SA_PASSWORD=<SQL_SA_PASSWORD>' \
-  -p 1433:1433 -d mcr.microsoft.com/mssql/server:2022-latest
+# 1. Ensure PostgreSQL 16 is running (or use docker compose up -d postgres)
+docker run -e POSTGRES_DB=hanyudb -e POSTGRES_USER=hanyu_app \
+  -e POSTGRES_PASSWORD=hanyu_local_password -p 5432:5432 -d postgres:16-alpine
 
 # 2. Backend setup
-cp secrets/sqlserver.env.example secrets/sqlserver.env
 cp secrets/backend.env.example backend/.env
 # Edit backend/.env with your DB and AI provider values
 
@@ -468,7 +462,7 @@ npm run dev                # Chạy với nodemon (auto-reload)
 ### Yêu cầu:
 
 - Node.js >= 18
-- SQL Server 2022 (local hoặc Docker)
+- PostgreSQL 16 (local Docker hoặc Neon)
 - OpenAI / Anthropic API Key
 
 ---
@@ -539,19 +533,19 @@ Chatbot có 3 chế độ:
 
 ---
 
-## 🗄️ Database Schema (SQL Server 2022)
+## 🗄️ Database Schema (PostgreSQL)
 
 ```
 Users          — Người dùng, XP, streak, HSK level
 Lessons        — Bài học (có hsk_level, emoji, duration)
-Vocabulary     — Từ vựng (hanzi NVARCHAR, pinyin, meaning)
-UserProgress   — Tiến độ hoàn thành bài học (UPSERT với MERGE)
+Vocabulary     — Từ vựng Unicode (hanzi, pinyin, meaning)
+UserProgress   — Tiến độ hoàn thành bài học (UPSERT với ON CONFLICT)
 VocabReviews   — Spaced Repetition (SM-2 algorithm)
 ChatHistory    — Lịch sử chat với AI
 QuizResults    — Kết quả bài kiểm tra
 ```
 
-> **Lưu ý**: Tất cả cột tiếng Trung dùng `NVARCHAR` (Unicode) thay vì `VARCHAR`
+> **Lưu ý**: PostgreSQL dùng UTF-8 mặc định, hỗ trợ đầy đủ chữ Hán và tiếng Việt.
 
 ---
 
@@ -567,7 +561,7 @@ QuizResults    — Kết quả bài kiểm tra
 - ✅ **JWT Auth** — Đăng nhập an toàn
 - ✅ **Demo Mode** — Chạy không cần backend
 - ✅ **Docker** — Deploy 1 lệnh
-- ✅ **SQL Server 2022** — Collation hỗ trợ chữ Hán
+- ✅ **PostgreSQL 16** — UTF-8 mặc định, hỗ trợ chữ Hán
 
 ---
 

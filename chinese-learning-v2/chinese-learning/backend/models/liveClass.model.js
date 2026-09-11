@@ -23,7 +23,7 @@ function mapClass(row) {
 
 const LiveClassModel = {
   async list({ userId, includePast = false, teacherId = null }) {
-    const nowFilter = includePast ? "" : "AND c.ends_at >= GETDATE()";
+    const nowFilter = includePast ? "" : "AND c.ends_at >= CURRENT_TIMESTAMP";
     const teacherFilter = teacherId ? "AND c.teacher_id = @teacherId" : "";
     const result = await query(
       `SELECT
@@ -34,16 +34,15 @@ const LiveClassModel = {
          CASE WHEN mine.user_id IS NULL THEN 0 ELSE 1 END AS is_enrolled
        FROM LiveClasses c
        INNER JOIN Users u ON u.id = c.teacher_id
-       OUTER APPLY (
-         SELECT COUNT(*) AS enrolled_count
-         FROM LiveClassEnrollments e
+       LEFT JOIN LATERAL (
+         SELECT COUNT(*) AS enrolled_count FROM LiveClassEnrollments e
          WHERE e.class_id = c.id AND e.status = 'enrolled'
-       ) enrolled
-       OUTER APPLY (
-         SELECT TOP 1 e.user_id
-         FROM LiveClassEnrollments e
+       ) enrolled ON TRUE
+       LEFT JOIN LATERAL (
+         SELECT e.user_id FROM LiveClassEnrollments e
          WHERE e.class_id = c.id AND e.user_id = @userId AND e.status = 'enrolled'
-       ) mine
+         LIMIT 1
+       ) mine ON TRUE
        WHERE c.status = 'scheduled' ${nowFilter} ${teacherFilter}
        ORDER BY c.starts_at ASC`,
       {
@@ -130,12 +129,10 @@ const LiveClassModel = {
       enrollReq.input("classId", sql.Int, classId);
       enrollReq.input("userId", sql.Int, userId);
       await enrollReq.query(
-        `MERGE LiveClassEnrollments AS target
-         USING (SELECT @classId AS class_id, @userId AS user_id) AS source
-         ON target.class_id = source.class_id AND target.user_id = source.user_id
-         WHEN MATCHED THEN UPDATE SET status = 'enrolled', updated_at = GETDATE()
-         WHEN NOT MATCHED THEN INSERT (class_id, user_id, status, created_at, updated_at)
-           VALUES (@classId, @userId, 'enrolled', GETDATE(), GETDATE());`,
+        `INSERT INTO LiveClassEnrollments (class_id, user_id, status, created_at, updated_at)
+         VALUES (@classId, @userId, 'enrolled', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+         ON CONFLICT (class_id, user_id) DO UPDATE SET
+           status='enrolled', updated_at=CURRENT_TIMESTAMP`,
       );
 
       await transaction.commit();
