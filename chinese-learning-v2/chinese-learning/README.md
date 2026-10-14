@@ -1,6 +1,6 @@
 # 漢語學習 HánYǔ — Website Học Tiếng Trung
 
-> **Full-stack Learning Platform** | MVC Backend · JWT Auth · AI Chatbot · Spaced Repetition · PostgreSQL · Docker
+> **Full-stack Learning Platform** | MVC Backend · JWT Auth · AI Chatbot · Spaced Repetition · SQL Server 2022 · Docker
 
 **🎯 Highlight**: Production-ready **MVC + RESTful API** backend (Node.js/Express) với authentication, role-based access, token rotation, comprehensive error handling.
 
@@ -40,7 +40,7 @@
          │
          ↓
    ┌─────────────────────────────────────────────┐
-   │   **DATABASE (PostgreSQL)**                  │
+   │   **DATABASE (SQL Server 2022)**             │
    │   - Users, Lessons, Vocabulary               │
    │   - Progress (Spaced Repetition)             │
    │   - RefreshTokens (Token Rotation)           │
@@ -123,7 +123,7 @@ chinese-learning/
 │   ├── 📄 Dockerfile               # Docker image cho backend (Node 20 Alpine)
 │   ├── 📄 package.json             # NPM dependencies
 │   ├── 📂 config/
-│   │   └── 📄 db.js                # Kết nối PostgreSQL (pg pool)
+│   │   └── 📄 db.js                # Kết nối SQL Server 2022 (mssql pool)
 │   ├── 📂 middleware/
 │   │   └── 📄 auth.middleware.js   # JWT Bearer Token verification
 │   └── 📂 routes/
@@ -134,15 +134,16 @@ chinese-learning/
 │       └── 📄 progress.routes.js   # GET/POST /progress/xp
 │
 ├── 📂 database/
-│   └── 📄 postgres-init.sql        # PostgreSQL — tạo bảng, index, seed data
+│   └── 📄 init.sql                 # SQL Server 2022 — tạo DB, bảng, seed data
 │
 ├── 📂 secrets/
 │   ├── 📄 backend.env.example      # Template biến môi trường backend
+│   └── 📄 sqlserver.env.example    # Template biến môi trường SQL Server
 │
 ├── 📂 nginx/
 │   └── 📄 nginx.conf               # Nginx reverse proxy config
 │
-├── 📄 docker-compose.yml           # Orchestrate: PostgreSQL + Backend + Frontend
+├── 📄 docker-compose.yml           # Orchestrate: SQL Server + Backend + Frontend
 └── 📄 README.md                    # Tài liệu này
 ```
 
@@ -158,8 +159,8 @@ chinese-learning/
 | **Font**         | Google Fonts (Noto Serif SC)          | Hiển thị chữ Hán đẹp                 |
 | **Icons**        | Font Awesome 6                        | Biểu tượng                           |
 | **Backend**      | Node.js 20 + Express 4                | RESTful API server                   |
-| **Database**     | PostgreSQL 16                         | Lưu trữ dữ liệu                      |
-| **SQL Driver**   | pg (node-postgres)                    | Kết nối PostgreSQL từ Node.js        |
+| **Database**     | Microsoft SQL Server 2022             | Lưu trữ dữ liệu                      |
+| **SQL Driver**   | mssql (npm)                           | Kết nối SQL Server từ Node.js        |
 | **Auth**         | JWT (jsonwebtoken) + bcryptjs         | Xác thực người dùng                  |
 | **AI Chatbot**   | OpenAI GPT-4o-mini / Anthropic Claude | AI Tutor tiếng Trung                 |
 | **Container**    | Docker + Docker Compose               | Đóng gói & deploy                    |
@@ -215,7 +216,8 @@ npx serve frontend -p 5500
 git clone <repo>
 cd chinese-learning
 
-# 2. Copy environment template
+# 2. Copy env templates
+cp secrets/sqlserver.env.example secrets/sqlserver.env
 cp secrets/backend.env.example secrets/backend.env
 
 # 3. Edit secrets/backend.env and add ONE of these AI providers:
@@ -227,14 +229,17 @@ OPENAI_API_KEY=<OPENAI_API_KEY>
 AI_PROVIDER=anthropic
 ANTHROPIC_API_KEY=<ANTHROPIC_API_KEY>
 
-# 4. Start all services (PostgreSQL + Backend + Frontend + Nginx)
+# 4. Start all services (SQL Server + Backend + Frontend + Nginx)
 docker compose up -d
 
-# 5. PostgreSQL automatically runs database/postgres-init.sql on first start.
+# 5. Wait ~60sec for SQL Server to be ready, then init database:
+docker exec hanyu-sqlserver /opt/mssql-tools/bin/sqlcmd \
+  -S localhost -U sa -P "<SQL_SA_PASSWORD>" \
+  -i /docker-entrypoint-initdb.d/init.sql
 
 # 6. Access:
 #    - Frontend: http://localhost:8080
-#    - API Health: http://localhost:5000/api/health
+#    - API Health: http://localhost:3000/api/health
 #    - Swagger Docs (if implemented): http://localhost:3000/api-docs
 ```
 
@@ -246,11 +251,12 @@ docker compose up -d
 ### Option B: Local Node.js (For Backend Development)
 
 ```bash
-# 1. Ensure PostgreSQL 16 is running (or use docker compose up -d postgres)
-docker run -e POSTGRES_DB=hanyudb -e POSTGRES_USER=hanyu_app \
-  -e POSTGRES_PASSWORD=hanyu_local_password -p 5432:5432 -d postgres:16-alpine
+# 1. Ensure SQL Server 2022 is running (local or Docker)
+docker run -e 'ACCEPT_EULA=Y' -e 'SA_PASSWORD=<SQL_SA_PASSWORD>' \
+  -p 1433:1433 -d mcr.microsoft.com/mssql/server:2022-latest
 
 # 2. Backend setup
+cp secrets/sqlserver.env.example secrets/sqlserver.env
 cp secrets/backend.env.example backend/.env
 # Edit backend/.env with your DB and AI provider values
 
@@ -271,11 +277,51 @@ npx serve -p 8080
 
 ---
 
-## 🚀 Deploy Live (Render + Neon)
+## 🚀 Deploy Live (Railway.app — Free Tier)
 
-Deploy backend as a Render Web Service and frontend as a Render Static Site.
-Use Neon PostgreSQL and run `database/postgres-init.sql` once in Neon SQL Editor.
-The complete production setup is in [`DEPLOYMENT.md`](../../DEPLOYMENT.md).
+---
+
+## 🚀 Deploy Live (Railway.app — Free Tier)
+
+**Zero-cost deployment with full-stack support.**
+
+### Step 1: Prepare Repo
+
+```bash
+# Ensure docker-compose.yml exists at root
+# .env vars are in production .env (Railway will provide)
+git push origin main
+```
+
+### Step 2: Create Railway Project
+
+1. Go to [railway.app](https://railway.app)
+2. Click **"New Project"** → **"Deploy from GitHub"**
+3. Select this repository
+4. Railway auto-detects `docker-compose.yml` ✅
+
+### Step 3: Configure Environment
+
+In Railway dashboard:
+
+```
+ENVIRONMENT VARIABLES:
+- AI_PROVIDER = openai (or anthropic)
+- OPENAI_API_KEY = <OPENAI_API_KEY>
+- ANTHROPIC_API_KEY = <ANTHROPIC_API_KEY>
+- SQL_PASSWORD = <SQL_SA_PASSWORD> (or change)
+- NODE_ENV = production
+```
+
+### Step 4: Deploy
+
+Railway auto-deploys on `git push`. Check **Deployments** tab.
+
+**Result:**
+
+- Frontend live at: `https://your-project.railway.app`
+- Backend API: `https://your-project.railway.app/api`
+- Database: Managed by Railway
 
 ---
 
@@ -296,7 +342,7 @@ If you want to **test the chatbot** locally or the evaluator wants to:
 1. Sign up at [platform.openai.com](https://platform.openai.com)
 2. Add free $5 trial credits (auto-applied)
 3. Get API key from dashboard
-4. Add to `.env` or Render environment variables:
+4. Add to `.env` or Railway variables:
    ```
    AI_PROVIDER=openai
    OPENAI_API_KEY=<OPENAI_API_KEY>
@@ -422,7 +468,7 @@ npm run dev                # Chạy với nodemon (auto-reload)
 ### Yêu cầu:
 
 - Node.js >= 18
-- PostgreSQL 16 (local Docker hoặc Neon)
+- SQL Server 2022 (local hoặc Docker)
 - OpenAI / Anthropic API Key
 
 ---
@@ -493,19 +539,19 @@ Chatbot có 3 chế độ:
 
 ---
 
-## 🗄️ Database Schema (PostgreSQL)
+## 🗄️ Database Schema (SQL Server 2022)
 
 ```
 Users          — Người dùng, XP, streak, HSK level
 Lessons        — Bài học (có hsk_level, emoji, duration)
-Vocabulary     — Từ vựng Unicode (hanzi, pinyin, meaning)
-UserProgress   — Tiến độ hoàn thành bài học (UPSERT với ON CONFLICT)
+Vocabulary     — Từ vựng (hanzi NVARCHAR, pinyin, meaning)
+UserProgress   — Tiến độ hoàn thành bài học (UPSERT với MERGE)
 VocabReviews   — Spaced Repetition (SM-2 algorithm)
 ChatHistory    — Lịch sử chat với AI
 QuizResults    — Kết quả bài kiểm tra
 ```
 
-> **Lưu ý**: PostgreSQL dùng UTF-8 mặc định, hỗ trợ đầy đủ chữ Hán và tiếng Việt.
+> **Lưu ý**: Tất cả cột tiếng Trung dùng `NVARCHAR` (Unicode) thay vì `VARCHAR`
 
 ---
 
@@ -521,7 +567,7 @@ QuizResults    — Kết quả bài kiểm tra
 - ✅ **JWT Auth** — Đăng nhập an toàn
 - ✅ **Demo Mode** — Chạy không cần backend
 - ✅ **Docker** — Deploy 1 lệnh
-- ✅ **PostgreSQL 16** — UTF-8 mặc định, hỗ trợ chữ Hán
+- ✅ **SQL Server 2022** — Collation hỗ trợ chữ Hán
 
 ---
 
