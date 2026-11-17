@@ -1,31 +1,27 @@
-# Deploy Vercel + Railway
+# Deploy Vercel + Render
 
-Repo nay dat ung dung that trong `chinese-learning-v2/chinese-learning`, vi vay khong nen de Vercel/Railway tu doan root mac dinh.
+Repo nay dat ung dung that trong `chinese-learning-v2/chinese-learning`, vi vay khong nen de Vercel/Render tu doan root mac dinh.
 
-## Railway: backend
+## Render: backend
 
-Railway service backend dung cau hinh o repo root:
+Render Web Service dung Blueprint o repo root:
 
-- `railway.json`
+- `render.yaml`
 - `Dockerfile.railway`
 
-Bien moi truong bat buoc tren Railway:
+Khi tao Blueprint, Render se tu sinh `JWT_SECRET`, `JWT_REFRESH_SECRET` va
+`SESSION_SECRET`. Nhap cac bien con lai khi Render yeu cau:
 
 ```env
 NODE_ENV=production
-PORT=5000
-JWT_SECRET=<random-64-byte-secret>
-JWT_REFRESH_SECRET=<random-64-byte-secret>
-SESSION_SECRET=<random-session-secret>
-
 DB_SERVER=<sql-server-host>
 DB_PORT=1433
 DB_NAME=HanYuDB
 DB_USER=<sql-user>
 DB_PASSWORD=<sql-password>
 
-BASE_URL=https://<railway-backend-domain>
-PUBLIC_URL=https://<railway-backend-domain>
+BASE_URL=https://<render-backend-domain>
+PUBLIC_URL=https://<render-backend-domain>
 FRONTEND_URL=https://<vercel-frontend-domain>
 ```
 
@@ -43,7 +39,9 @@ SMTP_USER=<user>
 SMTP_PASS=<pass>
 ```
 
-Luu y: backend dang dung SQL Server (`mssql`), khong phai PostgreSQL. Neu dung Railway database mac dinh PostgreSQL thi app se khong ket noi duoc. Can SQL Server reachable tu Railway hoac mot Railway service rieng chay image SQL Server co volume.
+Luu y: backend dang dung SQL Server (`mssql`), khong phai PostgreSQL. SQL Server
+phai cho phep ket noi cong khai tu Render; Neon PostgreSQL khong tuong thich voi
+backend hien tai.
 
 ## Vercel: frontend
 
@@ -56,7 +54,7 @@ chinese-learning-v2/chinese-learning/frontend
 Them bien moi truong tren Vercel:
 
 ```env
-HANYU_API_BASE_URL=https://<railway-backend-domain>
+HANYU_API_BASE_URL=https://<render-backend-domain>
 ```
 
 Gia tri tren co the co hoac khong co `/api`; frontend se tu them `/api` neu can.
@@ -64,6 +62,6 @@ Gia tri tren co the co hoac khong co `/api`; frontend se tu them `/api` neu can.
 Sau khi doi domain deploy, cap nhat OAuth callback tren Google/Facebook:
 
 ```text
-https://<railway-backend-domain>/api/auth/google/callback
-https://<railway-backend-domain>/api/auth/facebook/callback
+https://<render-backend-domain>/api/auth/google/callback
+https://<render-backend-domain>/api/auth/facebook/callback
 ```
