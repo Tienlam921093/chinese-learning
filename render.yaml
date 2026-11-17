@@ -20,8 +20,14 @@ services:
       - key: DATABASE_URL
         sync: false
       - key: BASE_URL
-        sync: false
+        fromService:
+          name: hanyu-api
+          type: web
+          envVarKey: RENDER_EXTERNAL_URL
       - key: PUBLIC_URL
-        sync: false
+        fromService:
+          name: hanyu-api
+          type: web
+          envVarKey: RENDER_EXTERNAL_URL
       - key: FRONTEND_URL
         sync: false
