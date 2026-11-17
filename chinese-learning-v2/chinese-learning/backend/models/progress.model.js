@@ -32,12 +32,11 @@ const ProgressModel = {
   // Ghi nhan mot bai hoc da hoan thanh va cong XP tuong ung voi diem.
   async completeLesson(userId, lessonId, score = 100, timeSpent = 0) {
     await query(
-      `MERGE UserProgress AS target
-       USING (VALUES (@uid, @lid)) AS source(user_id, lesson_id)
-       ON target.user_id = source.user_id AND target.lesson_id = source.lesson_id
-       WHEN MATCHED THEN UPDATE SET completed=1, score=@score, time_spent=@time, updated_at=GETDATE()
-       WHEN NOT MATCHED THEN INSERT (user_id, lesson_id, completed, score, time_spent, created_at)
-         VALUES (@uid, @lid, 1, @score, @time, GETDATE());`,
+      `INSERT INTO UserProgress (user_id, lesson_id, completed, score, time_spent, created_at, updated_at)
+       VALUES (@uid, @lid, TRUE, @score, @time, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+       ON CONFLICT (user_id, lesson_id) DO UPDATE SET
+         completed=TRUE, score=EXCLUDED.score, time_spent=EXCLUDED.time_spent,
+         updated_at=CURRENT_TIMESTAMP`,
       {
         uid: { type: sql.Int, value: userId },
         lid: { type: sql.Int, value: lessonId },

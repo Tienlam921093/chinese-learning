@@ -76,19 +76,13 @@ const VocabularyModel = {
   // Luu ket qua on tap SM-2: cap nhat neu da co, tao moi neu chua co.
   async saveReview({ userId, vocabId, quality, easeFactor, intervalDays, repetitions, nextReview }) {
     await query(
-      `MERGE VocabReviews AS t
-       USING (VALUES (@uid, @vid)) AS s(user_id, vocab_id)
-       ON t.user_id = s.user_id AND t.vocab_id = s.vocab_id
-       WHEN MATCHED THEN UPDATE SET
-         quality       = @q,
-         ease_factor   = @ef,
-         interval_days = @intv,
-         repetitions   = @rep,
-         next_review   = @next,
-         reviewed_at   = GETDATE()
-       WHEN NOT MATCHED THEN INSERT
+      `INSERT INTO VocabReviews
          (user_id, vocab_id, quality, ease_factor, interval_days, repetitions, next_review, reviewed_at)
-         VALUES (@uid, @vid, @q, @ef, @intv, @rep, @next, GETDATE());`,
+       VALUES (@uid, @vid, @q, @ef, @intv, @rep, @next, CURRENT_TIMESTAMP)
+       ON CONFLICT (user_id, vocab_id) DO UPDATE SET
+         quality=EXCLUDED.quality, ease_factor=EXCLUDED.ease_factor,
+         interval_days=EXCLUDED.interval_days, repetitions=EXCLUDED.repetitions,
+         next_review=EXCLUDED.next_review, reviewed_at=CURRENT_TIMESTAMP`,
       {
         uid:  { type: sql.Int,      value: userId       },
         vid:  { type: sql.Int,      value: vocabId      },

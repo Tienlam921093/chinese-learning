@@ -24,16 +24,6 @@ function New-StrongPassword {
     return $password
 }
 
-$sqlFile = "$secretsDir\sqlserver.env"
-if (-not (Test-Path $sqlFile)) {
-    $saPassword = New-StrongPassword 28
-    $content = "MSSQL_SA_PASSWORD=$saPassword"
-    [System.IO.File]::WriteAllText($sqlFile, $content, [System.Text.Encoding]::UTF8)
-    Write-Host "[OK] Created secrets\sqlserver.env" -ForegroundColor Green
-} else {
-    Write-Host "[SKIP] secrets\sqlserver.env already exists" -ForegroundColor Yellow
-}
-
 $backendFile = "$secretsDir\backend.env"
 if (-not (Test-Path $backendFile)) {
     $dbPassword = New-StrongPassword 28
@@ -45,7 +35,10 @@ if (-not (Test-Path $backendFile)) {
         "# HanYu Backend Secrets - DO NOT COMMIT",
         "",
         "# DATABASE",
-        "DB_USER=sa",
+        "DB_HOST=postgres",
+        "DB_PORT=5432",
+        "DB_NAME=hanyudb",
+        "DB_USER=hanyu_app",
         "DB_PASSWORD=$dbPassword",
         "",
         "# JWT - auto generated",
