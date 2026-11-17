@@ -1,7 +1,10 @@
 import { mkdirSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 
+const repositoryRoot = join(dirname(fileURLToPath(import.meta.url)), "..");
 const outputPath = join(
+  repositoryRoot,
   "chinese-learning-v2",
   "chinese-learning",
   "frontend",
