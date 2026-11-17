@@ -31,7 +31,8 @@ const VNPayService = {
     const hashSecret = process.env.VNPAY_HASH_SECRET;
     const vnpayUrl = process.env.VNPAY_URL;
     // VNPay se redirect ve endpoint nay sau khi nguoi dung thanh toan.
-    const returnUrl = `${process.env.BASE_URL}/api/payment/vnpay/return`;
+    const publicBaseUrl = process.env.PUBLIC_URL || process.env.BASE_URL;
+    const returnUrl = `${publicBaseUrl}/api/payment/vnpay/return`;
 
     // Chan URL gateway sai moi truong de tranh nham sandbox/production.
     if (!gatewayEnvironmentOk(vnpayUrl)) {
